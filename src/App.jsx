@@ -18,12 +18,12 @@ const themes = {
     bgTertiary: '#0c0a2a',
     cardBg: 'rgba(15, 12, 50, 0.6)',
     text: '#ffffff',
-    textSecondary: '#a5a3c7',
-    textMuted: '#6b6899',
+    textSecondary: '#c4c1e0',
+    textMuted: '#8b87b3',
     accent: '#8b5cf6',
     accentAlt: '#06b6d4',
     accentPink: '#ec4899',
-    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #ec4899 100%)',
+    gradient: 'linear-gradient(135deg, #a78bfa 0%, #22d3ee 50%, #f472b6 100%)',
     gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.25) 0%, transparent 50%)',
     border: 'rgba(139, 92, 246, 0.15)',
     borderHover: 'rgba(139, 92, 246, 0.4)',
@@ -37,12 +37,12 @@ const themes = {
     bgTertiary: '#111111',
     cardBg: 'rgba(17, 17, 17, 0.6)',
     text: '#ffffff',
-    textSecondary: '#999999',
-    textMuted: '#666666',
+    textSecondary: '#b3b3b3',
+    textMuted: '#808080',
     accent: '#d4af37',
     accentAlt: '#f4d03f',
     accentPink: '#d4af37',
-    gradient: 'linear-gradient(135deg, #d4af37 0%, #f4d03f 100%)',
+    gradient: 'linear-gradient(135deg, #ffd700 0%, #fff4a3 50%, #ffd700 100%)',
     gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 175, 55, 0.15) 0%, transparent 50%)',
     border: 'rgba(212, 175, 55, 0.12)',
     borderHover: 'rgba(212, 175, 55, 0.35)',
@@ -55,13 +55,13 @@ const themes = {
     bgSecondary: '#0f172a',
     bgTertiary: '#1e293b',
     cardBg: 'rgba(15, 23, 42, 0.6)',
-    text: '#f1f5f9',
-    textSecondary: '#94a3b8',
-    textMuted: '#64748b',
+    text: '#ffffff',
+    textSecondary: '#b8c5d6',
+    textMuted: '#7d8fa3',
     accent: '#0ea5e9',
     accentAlt: '#22d3ee',
     accentPink: '#38bdf8',
-    gradient: 'linear-gradient(135deg, #0ea5e9 0%, #22d3ee 100%)',
+    gradient: 'linear-gradient(135deg, #67e8f9 0%, #a5f3fc 50%, #ffffff 100%)',
     gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.2) 0%, transparent 50%)',
     border: 'rgba(14, 165, 233, 0.12)',
     borderHover: 'rgba(14, 165, 233, 0.35)',
@@ -70,17 +70,17 @@ const themes = {
   },
   emerald: {
     name: 'Emerald Forest',
-    bg: '#022c22',
-    bgSecondary: '#064e3b',
-    bgTertiary: '#065f46',
-    cardBg: 'rgba(6, 78, 59, 0.5)',
-    text: '#ecfdf5',
-    textSecondary: '#a7f3d0',
-    textMuted: '#6ee7b7',
+    bg: '#021a13',
+    bgSecondary: '#032d21',
+    bgTertiary: '#043d2d',
+    cardBg: 'rgba(3, 45, 33, 0.6)',
+    text: '#ffffff',
+    textSecondary: '#b8e0d2',
+    textMuted: '#7fbcaa',
     accent: '#10b981',
     accentAlt: '#34d399',
     accentPink: '#6ee7b7',
-    gradient: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+    gradient: 'linear-gradient(135deg, #6ee7b7 0%, #a7f3d0 50%, #ffffff 100%)',
     gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.2) 0%, transparent 50%)',
     border: 'rgba(16, 185, 129, 0.15)',
     borderHover: 'rgba(16, 185, 129, 0.4)',
@@ -206,10 +206,8 @@ const useTypewriter = (texts, speed = 100, pause = 2000) => {
 
 const GradientText = ({ children, theme }) => (
   <span style={{
-    background: theme.gradient,
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
+    color: theme.accentAlt || theme.accent,
+    fontWeight: 'inherit',
   }}>
     {children}
   </span>
@@ -2402,7 +2400,7 @@ const AIAssistant = ({ theme }) => {
       {/* Chat Window */}
       <div style={{
         position: 'fixed',
-        bottom: '240px',
+        bottom: '170px',
         right: '30px',
         width: '380px',
         maxWidth: 'calc(100vw - 40px)',
@@ -2654,7 +2652,7 @@ const AIAssistant = ({ theme }) => {
         onClick={() => setIsOpen(!isOpen)}
         style={{
           position: 'fixed',
-          bottom: '170px',
+          bottom: '100px',
           right: '30px',
           width: '60px',
           height: '60px',
@@ -2776,7 +2774,7 @@ const ScrollToTop = ({ theme }) => {
       onMouseLeave={() => setHovered(false)}
       style={{
         position: 'fixed',
-        bottom: '100px',
+        bottom: '170px',
         right: '38px',
         zIndex: 998,
         width: '46px',
@@ -2852,7 +2850,12 @@ export default function IFIAASV3() {
       <style>{`
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { overflow-x: hidden; }
+        body { 
+          overflow-x: hidden; 
+          background: ${theme.bg};
+          color: ${theme.text};
+          transition: background 0.5s ease, color 0.5s ease;
+        }
         ::selection { background: ${theme.accent}; color: white; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: ${theme.bg}; }
