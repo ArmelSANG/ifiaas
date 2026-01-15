@@ -1,27 +1,24 @@
-# IFIAAS Landing Page
+# IFIAAS - Holding Digitale & Financière Panafricaine
 
-Landing page premium pour **IFIAAS** — Holding Digitale et Financière basée au Bénin.
-
-![IFIAAS](https://img.shields.io/badge/IFIAAS-Bénin-gold)
-![React](https://img.shields.io/badge/React-18-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-06B6D4)
-![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-purple)
+Page de branding premium pour IFIAAS.
 
 ## 🚀 Déploiement rapide
 
-### Vercel (Recommandé)
+### Option 1: Vercel (Recommandé - Gratuit)
+1. Créer un compte sur [vercel.com](https://vercel.com)
+2. Connecter votre repo GitHub
+3. Cliquer "Import Project"
+4. C'est tout ! Déploiement automatique.
 
-1. Push ce repo sur GitHub
-2. Connectez-vous à [vercel.com](https://vercel.com)
-3. Importez le repo
-4. Cliquez sur "Deploy"
+### Option 2: Netlify (Gratuit)
+1. Créer un compte sur [netlify.com](https://netlify.com)
+2. Drag & drop le dossier `dist` après build
+3. Ou connecter GitHub pour déploiement auto
 
-### Netlify
-
-1. Push ce repo sur GitHub
-2. Connectez-vous à [netlify.com](https://netlify.com)
-3. "Add new site" → "Import an existing project"
-4. Sélectionnez le repo et déployez
+### Option 3: GitHub Pages
+1. Dans Settings > Pages
+2. Source: GitHub Actions
+3. Le workflow est déjà configuré
 
 ## 💻 Développement local
 
@@ -29,84 +26,44 @@ Landing page premium pour **IFIAAS** — Holding Digitale et Financière basée 
 # Installer les dépendances
 npm install
 
-# Lancer le serveur de développement
+# Lancer le serveur de dev
 npm run dev
 
-# Build de production
+# Build pour production
 npm run build
 
-# Prévisualiser le build
+# Preview du build
 npm run preview
 ```
 
-## 🎨 Système de thèmes
-
-4 thèmes premium disponibles :
-
-| Thème | Description | Usage |
-|-------|-------------|-------|
-| 🌙 Midnight Luxury | Noir profond, or subtil | Holding, finance, autorité |
-| 💎 Tech Blue | Bleu nuit, blanc | Technologie, infrastructure |
-| 🌿 Emerald Growth | Vert profond, accents or | Finance, agriculture |
-| ☀️ Pure Light | Blanc premium, gris doux | Institutionnel |
-
-Le thème est persisté dans le localStorage.
-
-## 📂 Structure du projet
+## 📁 Structure
 
 ```
-ifiaas-landing/
+ifiaas-deploy/
 ├── public/
 │   └── favicon.svg
 ├── src/
-│   ├── components/
-│   │   ├── Header.jsx
-│   │   ├── Hero.jsx
-│   │   ├── Vision.jsx
-│   │   ├── Ecosystem.jsx
-│   │   ├── Roadmap.jsx
-│   │   ├── WhyIFIAAS.jsx
-│   │   ├── Contact.jsx
-│   │   └── Footer.jsx
-│   ├── context/
-│   │   └── ThemeContext.jsx
-│   ├── hooks/
-│   │   └── useScrollAnimation.js
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
+│   ├── App.jsx      # Composant principal
+│   └── main.jsx     # Point d'entrée
 ├── index.html
 ├── package.json
 ├── vite.config.js
-├── tailwind.config.js
-└── postcss.config.js
+└── README.md
 ```
 
-## ✨ Fonctionnalités
+## 🎨 Thèmes disponibles
 
-- ✅ Design luxe moderne inspiré Apple/Stripe
-- ✅ 4 thèmes avec persistence
-- ✅ Animations cinématographiques (Framer Motion)
-- ✅ Mesh gradient animé dans le Hero
-- ✅ Bento grid pour l'écosystème
-- ✅ Roadmap en stepping stones
-- ✅ 100% responsive (mobile-first)
-- ✅ Scroll fluide vers les sections
-- ✅ Performance optimisée
-- ✅ SEO ready
-
-## 🔗 Liens des plateformes
-
-- **GigaZone** : https://z.ifiaas.com
-- **ifiMoney** : https://money.ifiaas.com
+- **Midnight Luxury** - Noir & Or (défaut)
+- **Tech Blue Future** - Bleu nuit
+- **Emerald Growth** - Vert profond
+- **Pure Light Corporate** - Blanc premium
 
 ## 📞 Contact
 
-- **Promoteur** : Armel SANGAN
-- **Téléphone** : +229 01 67 45 54 62
-- **WhatsApp** : +229 67 45 54 62
-- **Email** : info@ifiaas.com
+**Armel SANGAN** - Promoteur  
+📧 info@ifiaas.com  
+📱 +229 01 67 45 54 62
 
 ---
 
-**IFIAAS** — Bâtir l'infrastructure digitale et financière de l'Afrique 🌍
+© 2024 IFIAAS - Basé au Bénin · Présent partout en Afrique
