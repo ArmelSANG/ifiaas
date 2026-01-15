@@ -11,81 +11,88 @@ import React, { useState, useEffect, useRef } from 'react';
 // ─────────────────────────────────────────────────────────────────────────────────
 
 const themes = {
-  aurora: {
-    name: 'Aurora Nights',
-    bg: '#030014',
-    bgSecondary: '#070620',
-    bgTertiary: '#0c0a2a',
-    cardBg: 'rgba(15, 12, 50, 0.6)',
-    text: '#ffffff',
-    textSecondary: '#c4c1e0',
-    textMuted: '#8b87b3',
-    accent: '#8b5cf6',
+  // 1. LIGHT CORPORATE - Blanc/Bleu cyan (thème clair) - DÉFAUT
+  light: {
+    name: 'Light Corporate',
+    bg: '#ffffff',
+    bgSecondary: '#f0f9ff',
+    bgTertiary: '#e0f2fe',
+    cardBg: 'rgba(255, 255, 255, 0.95)',
+    text: '#0c4a6e',
+    textSecondary: '#0369a1',
+    textMuted: '#0284c7',
+    accent: '#0891b2',
     accentAlt: '#06b6d4',
-    accentPink: '#ec4899',
-    gradient: 'linear-gradient(135deg, #a78bfa 0%, #22d3ee 50%, #f472b6 100%)',
-    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.25) 0%, transparent 50%)',
-    border: 'rgba(139, 92, 246, 0.15)',
-    borderHover: 'rgba(139, 92, 246, 0.4)',
-    glow: '0 0 80px rgba(139, 92, 246, 0.4)',
-    glowAlt: '0 0 60px rgba(6, 182, 212, 0.3)',
+    accentPink: '#22d3ee',
+    gradient: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%)',
+    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(8, 145, 178, 0.15) 0%, transparent 50%)',
+    border: 'rgba(8, 145, 178, 0.2)',
+    borderHover: 'rgba(8, 145, 178, 0.4)',
+    glow: '0 0 60px rgba(8, 145, 178, 0.25)',
+    glowAlt: '0 0 40px rgba(6, 182, 212, 0.2)',
   },
+  
+  // 2. AURORA VIOLET - Sombre avec violet
+  aurora: {
+    name: 'Aurora Violet',
+    bg: '#0a0118',
+    bgSecondary: '#110524',
+    bgTertiary: '#1a0a30',
+    cardBg: 'rgba(26, 10, 48, 0.6)',
+    text: '#ffffff',
+    textSecondary: '#c4b5fd',
+    textMuted: '#a78bfa',
+    accent: '#8b5cf6',
+    accentAlt: '#a78bfa',
+    accentPink: '#c084fc',
+    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #c084fc 100%)',
+    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.3) 0%, transparent 50%)',
+    border: 'rgba(139, 92, 246, 0.2)',
+    borderHover: 'rgba(139, 92, 246, 0.5)',
+    glow: '0 0 80px rgba(139, 92, 246, 0.4)',
+    glowAlt: '0 0 60px rgba(167, 139, 250, 0.3)',
+  },
+  
+  // 3. MIDNIGHT GOLD - Sombre avec or (luxe)
   midnight: {
     name: 'Midnight Gold',
-    bg: '#050505',
-    bgSecondary: '#0a0a0a',
-    bgTertiary: '#111111',
-    cardBg: 'rgba(17, 17, 17, 0.6)',
+    bg: '#0a0a0a',
+    bgSecondary: '#121212',
+    bgTertiary: '#1a1a1a',
+    cardBg: 'rgba(26, 26, 26, 0.6)',
     text: '#ffffff',
-    textSecondary: '#b3b3b3',
-    textMuted: '#808080',
+    textSecondary: '#d4d4d4',
+    textMuted: '#a3a3a3',
     accent: '#d4af37',
-    accentAlt: '#f4d03f',
-    accentPink: '#d4af37',
-    gradient: 'linear-gradient(135deg, #ffd700 0%, #fff4a3 50%, #ffd700 100%)',
-    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 175, 55, 0.15) 0%, transparent 50%)',
-    border: 'rgba(212, 175, 55, 0.12)',
-    borderHover: 'rgba(212, 175, 55, 0.35)',
+    accentAlt: '#fbbf24',
+    accentPink: '#f59e0b',
+    gradient: 'linear-gradient(135deg, #d4af37 0%, #fbbf24 50%, #fcd34d 100%)',
+    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 175, 55, 0.2) 0%, transparent 50%)',
+    border: 'rgba(212, 175, 55, 0.15)',
+    borderHover: 'rgba(212, 175, 55, 0.4)',
     glow: '0 0 80px rgba(212, 175, 55, 0.3)',
-    glowAlt: '0 0 60px rgba(244, 208, 63, 0.2)',
+    glowAlt: '0 0 60px rgba(251, 191, 36, 0.25)',
   },
+  
+  // 4. OCEAN DEEP - Bleu profond/Cyan
   ocean: {
-    name: 'Deep Ocean',
+    name: 'Ocean Deep',
     bg: '#020617',
-    bgSecondary: '#0f172a',
-    bgTertiary: '#1e293b',
-    cardBg: 'rgba(15, 23, 42, 0.6)',
+    bgSecondary: '#0c1629',
+    bgTertiary: '#132035',
+    cardBg: 'rgba(12, 22, 41, 0.6)',
     text: '#ffffff',
-    textSecondary: '#b8c5d6',
-    textMuted: '#7d8fa3',
+    textSecondary: '#94a3b8',
+    textMuted: '#64748b',
     accent: '#0ea5e9',
-    accentAlt: '#22d3ee',
-    accentPink: '#38bdf8',
-    gradient: 'linear-gradient(135deg, #67e8f9 0%, #a5f3fc 50%, #ffffff 100%)',
-    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.2) 0%, transparent 50%)',
-    border: 'rgba(14, 165, 233, 0.12)',
-    borderHover: 'rgba(14, 165, 233, 0.35)',
+    accentAlt: '#38bdf8',
+    accentPink: '#22d3ee',
+    gradient: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 50%, #22d3ee 100%)',
+    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.25) 0%, transparent 50%)',
+    border: 'rgba(14, 165, 233, 0.15)',
+    borderHover: 'rgba(14, 165, 233, 0.4)',
     glow: '0 0 80px rgba(14, 165, 233, 0.35)',
-    glowAlt: '0 0 60px rgba(34, 211, 238, 0.25)',
-  },
-  emerald: {
-    name: 'Emerald Forest',
-    bg: '#021a13',
-    bgSecondary: '#032d21',
-    bgTertiary: '#043d2d',
-    cardBg: 'rgba(3, 45, 33, 0.6)',
-    text: '#ffffff',
-    textSecondary: '#b8e0d2',
-    textMuted: '#7fbcaa',
-    accent: '#10b981',
-    accentAlt: '#34d399',
-    accentPink: '#6ee7b7',
-    gradient: 'linear-gradient(135deg, #6ee7b7 0%, #a7f3d0 50%, #ffffff 100%)',
-    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.2) 0%, transparent 50%)',
-    border: 'rgba(16, 185, 129, 0.15)',
-    borderHover: 'rgba(16, 185, 129, 0.4)',
-    glow: '0 0 80px rgba(16, 185, 129, 0.35)',
-    glowAlt: '0 0 60px rgba(52, 211, 153, 0.25)',
+    glowAlt: '0 0 60px rgba(56, 189, 248, 0.3)',
   },
 };
 
@@ -446,15 +453,36 @@ const Header = ({ theme, currentTheme, setTheme }) => {
             textDecoration: 'none',
           }}
         >
-          <img src="/logo.png" alt="IFIAAS" style={{ height: '42px' }} />
+          <img 
+            src={currentTheme === 'light' ? '/logo-light.png' : '/logo.png'} 
+            alt="IFIAAS" 
+            style={{ height: '48px' }} 
+          />
           <span style={{ 
-            fontSize: '20px', 
-            fontWeight: 700, 
-            color: theme.text,
+            fontSize: '22px', 
+            fontWeight: 800, 
+            color: theme.accent,
             fontFamily: "'Clash Display', sans-serif",
-            letterSpacing: '-0.02em',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            position: 'relative',
+            textShadow: `0 0 20px ${theme.accent}50, 0 0 40px ${theme.accent}30`,
           }}>
-            IFIAAS
+            I
+            <span style={{ color: theme.accentAlt }}>F</span>
+            I
+            <span style={{ color: theme.accentAlt }}>A</span>
+            A
+            <span style={{ color: theme.accentPink }}>S</span>
+            <span style={{
+              position: 'absolute',
+              bottom: '-4px',
+              left: 0,
+              width: '100%',
+              height: '2px',
+              background: theme.gradient,
+              borderRadius: '2px',
+            }} />
           </span>
         </a>
 
@@ -820,12 +848,12 @@ const HeroSection = ({ theme }) => {
 
         {/* Main Title */}
         <h1 style={{
-          fontFamily: "'Clash Display', sans-serif",
-          fontSize: 'clamp(44px, 9vw, 90px)',
-          fontWeight: 700,
-          lineHeight: 1.05,
+          fontFamily: "'DM Serif Display', 'Playfair Display', Georgia, serif",
+          fontSize: 'clamp(40px, 8vw, 80px)',
+          fontWeight: 400,
+          lineHeight: 1.1,
           margin: '40px 0 30px',
-          letterSpacing: '-0.03em',
+          letterSpacing: '-0.01em',
         }}>
           <span style={{
             display: 'block',
@@ -841,14 +869,15 @@ const HeroSection = ({ theme }) => {
             transform: loaded ? 'translateY(0)' : 'translateY(40px)',
             transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s',
             minHeight: '1.1em',
+            fontStyle: 'italic',
           }}>
             <GradientText theme={theme}>{typedText}</GradientText>
             <span style={{
               display: 'inline-block',
-              width: '4px',
-              height: '0.9em',
+              width: '3px',
+              height: '0.85em',
               background: theme.accent,
-              marginLeft: '4px',
+              marginLeft: '6px',
               animation: 'blink 1s step-end infinite',
               verticalAlign: 'middle',
             }} />
@@ -2815,7 +2844,7 @@ const ScrollToTop = ({ theme }) => {
 // ─────────────────────────────────────────────────────────────────────────────────
 
 export default function IFIAASV3() {
-  const [currentTheme, setCurrentTheme] = useState('aurora');
+  const [currentTheme, setCurrentTheme] = useState('light');
   const [isLoading, setIsLoading] = useState(true);
   const theme = themes[currentTheme];
 
