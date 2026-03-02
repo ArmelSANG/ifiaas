@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+
+  <!-- ══ Page principale ══ -->
+  <url>
+    <loc>https://ifiaas.com/</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ifiaas.com/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ifiaas.com/"/>
+    <image:image>
+      <image:loc>https://ifiaas.com/og-image.png</image:loc>
+      <image:title>IFIAAS — Informatique, Finance &amp; Agriculture As A Service | Bénin</image:title>
+      <image:caption>IFIAAS — Solutions numériques depuis Zinvié, Bénin</image:caption>
+      <image:geo_location>Zinvié, Atlantique, Bénin</image:geo_location>
+    </image:image>
+  </url>
+
+  <!-- ══ Sections ancres ══ -->
+  <url>
+    <loc>https://ifiaas.com/#plateformes</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://ifiaas.com/#domaines</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ifiaas.com/#projets</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ifiaas.com/#fondateur</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

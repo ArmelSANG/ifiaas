@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <url>
+    <loc>https://ifiaas.com/</loc>
+    <image:image>
+      <image:loc>https://ifiaas.com/og-image.png</image:loc>
+      <image:title>IFIAAS — Informatique, Finance &amp; Agriculture As A Service</image:title>
+      <image:caption>IFIAAS — GigaZone WiFi Pro, ifiMoney, ifiChat. Solutions numériques depuis Zinvié, Bénin.</image:caption>
+      <image:geo_location>Zinvié, Atlantique, Bénin</image:geo_location>
+      <image:license>https://ifiaas.com/</image:license>
+    </image:image>
+    <image:image>
+      <image:loc>https://ifiaas.com/favicon.svg</image:loc>
+      <image:title>Logo IFIAAS</image:title>
+      <image:caption>Logo officiel IFIAAS</image:caption>
+    </image:image>
+  </url>
+
+</urlset>

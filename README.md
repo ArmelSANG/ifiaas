@@ -1,126 +1,71 @@
-# IFIAAS - Version 3.0 Ultimate 🚀
+# IFIAAS — Landing Page
 
-**Holding Digitale & Financière Panafricaine**
+Site officiel d'IFIAAS à déployer sur **ifiaas.com** via Vercel.
 
-Design premium nouvelle génération avec toutes les fonctionnalités.
+## 🚀 Déploiement sur Vercel
 
----
+### Méthode 1 — Via GitHub (recommandée)
 
-## ✨ Nouveautés V3
-
-### 🎨 Design
-- **4 thèmes premium** : Aurora Nights, Midnight Gold, Deep Ocean, Emerald Forest
-- **Glassmorphism** avancé avec backdrop-filter
-- **Mesh gradients** et Aurora effects
-- **Police Clash Display** (startup moderne) + Inter + Playfair Display
-- **Bento Grid** pour l'écosystème
-
-### 🎬 Animations
-- **Preloader** animé avec barre de progression
-- **Effet Typewriter** sur le Hero (mots qui changent)
-- **Parallax** sur le background
-- **Mouse glow** suivant le curseur
-- **Compteurs animés** sur les stats
-- **Hover 3D** sur les cartes
-- **Scroll animations** fluides
-
-### 📱 Sections
-1. **Hero** - Titre animé + CTA + Scroll indicator
-2. **Vision** - Mission + Stats + Cards 2x2
-3. **Écosystème** - 6 plateformes en Bento Grid
-4. **Services** - 5 services avec tags
-5. **Stats** - 4 compteurs animés
-6. **Roadmap** - Timeline 4 étapes
-7. **Trust** - 6 avantages
-8. **Contact** - CTA + Infos
-9. **Footer** - Social links
-
-### 🔧 Fonctionnalités
-- ✅ 4 thèmes avec sélecteur
-- ✅ Preloader animé
-- ✅ Bouton WhatsApp flottant
-- ✅ Bouton Scroll to Top
-- ✅ Menu mobile full-screen
-- ✅ 100% responsive
-- ✅ Animations performantes
-
----
-
-## 🚀 Installation
-
+1. Crée un repo GitHub et pousse ce projet :
 ```bash
-# Installer les dépendances
-npm install
-
-# Lancer en développement
-npm run dev
-
-# Build production
-npm run build
-
-# Preview build
-npm run preview
+git init
+git add .
+git commit -m "Initial IFIAAS landing"
+git remote add origin https://github.com/TON_COMPTE/ifiaas-landing.git
+git push -u origin main
 ```
 
----
+2. Va sur [vercel.com](https://vercel.com) → **New Project**
+3. Importe ton repo GitHub
+4. Vercel détecte automatiquement Vite → clique **Deploy**
+5. Dans **Settings → Domains** → ajoute `ifiaas.com`
 
-## 📦 Déploiement
+### Méthode 2 — Via Vercel CLI
 
-### Vercel (Recommandé)
-1. Push vers GitHub
-2. Importer sur [vercel.com](https://vercel.com)
-3. Deploy automatique ✨
+```bash
+npm install -g vercel
+vercel login
+vercel --prod
+```
 
-### Netlify
-1. Push vers GitHub
-2. Connecter à Netlify
-3. Build: `npm run build`
-4. Publish: `dist`
+### Configuration DNS pour ifiaas.com
 
----
+Dans ton registrar de domaine, ajoute ces enregistrements :
+```
+Type  Nom   Valeur
+A     @     76.76.19.61
+CNAME www   cname.vercel-dns.com
+```
 
-## 🎨 Thèmes
+## 🛠 Développement local
 
-| Thème | Description |
-|-------|-------------|
-| **Aurora Nights** | Violet/Cyan - Style startup tech |
-| **Midnight Gold** | Noir/Or - Luxe premium |
-| **Deep Ocean** | Bleu profond - Corporate moderne |
-| **Emerald Forest** | Vert émeraude - Nature & croissance |
+```bash
+npm install
+npm run dev
+```
 
----
+Ouvre http://localhost:5173
 
 ## 📁 Structure
 
 ```
-ifiaas-v3/
+ifiaas-vercel/
+├── index.html          # Entry point + SEO meta
+├── vercel.json         # SPA routing config
+├── vite.config.js      # Vite config
 ├── public/
-│   └── logo.png
-├── src/
-│   ├── App.jsx          # Composant principal (3000+ lignes)
-│   └── main.jsx
-├── index.html
-├── package.json
-├── vite.config.js
-└── README.md
+│   └── favicon.svg
+└── src/
+    ├── main.jsx
+    └── App.jsx         # Toute l'app (composants + styles)
 ```
 
----
+## 🎨 Plateformes représentées
 
-## 📞 Contact
-
-- **WhatsApp** : +229 67 45 54 62
-- **Email** : contact@ifiaas.com
-- **Localisation** : Bénin, Afrique
+- **z.ifiaas.com** — GigaZone WiFi Pro
+- **money.ifiaas.com** — ifiMoney (Tontine numérique)
+- **chat.ifiaas.com** — ifiChat (Live × Telegram)
 
 ---
 
-## 👨‍💻 Auteur
-
-**Armel SANGAN** - Fondateur IFIAAS
-
----
-
-© 2025 IFIAAS - Holding Digitale & Financière Panafricaine
-
-*Bâtir l'infrastructure digitale et financière de l'Afrique* 🌍
+**Armel SANGAN** · IFIAAS · Zinvié, Bénin 🇧🇯

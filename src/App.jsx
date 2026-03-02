@@ -1,2933 +1,811 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// IFIAAS - VERSION 3.0 ULTIMATE
-// Holding Digitale & Financière Panafricaine
-// Design Premium Nouvelle Génération
-// ═══════════════════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   GLOBAL STYLES
+═══════════════════════════════════════════ */
+const GLOBAL_CSS = `
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// SYSTÈME DE THÈMES AVANCÉ
-// ─────────────────────────────────────────────────────────────────────────────────
+  :root {
+    --bg: #06080d;
+    --surface: #0d1018;
+    --surface2: #131720;
+    --white: #f0ede6;
+    --muted: rgba(240,237,230,0.45);
+    --green: #0d6e3f;
+    --green2: #1aa860;
+    --accent: #00f5a0;
+    --gold: #d4a843;
+    --gold2: #f0c860;
+    --border: rgba(240,237,230,0.07);
 
-const themes = {
-  // 1. LIGHT CORPORATE - Blanc/Bleu cyan (thème clair) - DÉFAUT
-  light: {
-    name: 'Light Corporate',
-    bg: '#ffffff',
-    bgSecondary: '#f0f9ff',
-    bgTertiary: '#e0f2fe',
-    cardBg: 'rgba(255, 255, 255, 0.95)',
-    text: '#0c4a6e',
-    textSecondary: '#0369a1',
-    textMuted: '#0284c7',
-    accent: '#0891b2',
-    accentAlt: '#06b6d4',
-    accentPink: '#22d3ee',
-    gradient: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%)',
-    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(8, 145, 178, 0.15) 0%, transparent 50%)',
-    border: 'rgba(8, 145, 178, 0.2)',
-    borderHover: 'rgba(8, 145, 178, 0.4)',
-    glow: '0 0 60px rgba(8, 145, 178, 0.25)',
-    glowAlt: '0 0 40px rgba(6, 182, 212, 0.2)',
-  },
-  
-  // 2. AURORA VIOLET - Sombre avec violet
-  aurora: {
-    name: 'Aurora Violet',
-    bg: '#0a0118',
-    bgSecondary: '#110524',
-    bgTertiary: '#1a0a30',
-    cardBg: 'rgba(26, 10, 48, 0.6)',
-    text: '#ffffff',
-    textSecondary: '#c4b5fd',
-    textMuted: '#a78bfa',
-    accent: '#8b5cf6',
-    accentAlt: '#a78bfa',
-    accentPink: '#c084fc',
-    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #c084fc 100%)',
-    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.3) 0%, transparent 50%)',
-    border: 'rgba(139, 92, 246, 0.2)',
-    borderHover: 'rgba(139, 92, 246, 0.5)',
-    glow: '0 0 80px rgba(139, 92, 246, 0.4)',
-    glowAlt: '0 0 60px rgba(167, 139, 250, 0.3)',
-  },
-  
-  // 3. MIDNIGHT GOLD - Sombre avec or (luxe)
-  midnight: {
-    name: 'Midnight Gold',
-    bg: '#0a0a0a',
-    bgSecondary: '#121212',
-    bgTertiary: '#1a1a1a',
-    cardBg: 'rgba(26, 26, 26, 0.6)',
-    text: '#ffffff',
-    textSecondary: '#d4d4d4',
-    textMuted: '#a3a3a3',
-    accent: '#d4af37',
-    accentAlt: '#fbbf24',
-    accentPink: '#f59e0b',
-    gradient: 'linear-gradient(135deg, #d4af37 0%, #fbbf24 50%, #fcd34d 100%)',
-    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 175, 55, 0.2) 0%, transparent 50%)',
-    border: 'rgba(212, 175, 55, 0.15)',
-    borderHover: 'rgba(212, 175, 55, 0.4)',
-    glow: '0 0 80px rgba(212, 175, 55, 0.3)',
-    glowAlt: '0 0 60px rgba(251, 191, 36, 0.25)',
-  },
-  
-  // 4. OCEAN DEEP - Bleu profond/Cyan
-  ocean: {
-    name: 'Ocean Deep',
-    bg: '#020617',
-    bgSecondary: '#0c1629',
-    bgTertiary: '#132035',
-    cardBg: 'rgba(12, 22, 41, 0.6)',
-    text: '#ffffff',
-    textSecondary: '#94a3b8',
-    textMuted: '#64748b',
-    accent: '#0ea5e9',
-    accentAlt: '#38bdf8',
-    accentPink: '#22d3ee',
-    gradient: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 50%, #22d3ee 100%)',
-    gradientBg: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.25) 0%, transparent 50%)',
-    border: 'rgba(14, 165, 233, 0.15)',
-    borderHover: 'rgba(14, 165, 233, 0.4)',
-    glow: '0 0 80px rgba(14, 165, 233, 0.35)',
-    glowAlt: '0 0 60px rgba(56, 189, 248, 0.3)',
-  },
-};
+    --px: clamp(1.2rem, 5vw, 5rem);
+    --section-py: clamp(4rem, 8vw, 8rem);
+  }
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// HOOKS PERSONNALISÉS
-// ─────────────────────────────────────────────────────────────────────────────────
+  html { scroll-behavior: smooth; font-size: 16px; }
 
-const useInView = (threshold = 0.1) => {
-  const ref = useRef(null);
-  const [isInView, setIsInView] = useState(false);
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+    -webkit-font-smoothing: antialiased;
+  }
 
+  * { cursor: none !important; }
+
+  @media (hover: none) {
+    * { cursor: auto !important; }
+    body { cursor: auto; }
+  }
+
+  a { text-decoration: none; color: inherit; }
+
+  ::selection { background: rgba(0,245,160,0.2); color: var(--accent); }
+
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+
+  /* Noise overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 8000;
+    opacity: 0.4;
+  }
+
+  /* ── Keyframes ── */
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes float    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-16px); } }
+  /* Mobile: forcer la visibilité hero */
+  @media (max-width: 900px) {
+    .hero-force-visible { opacity:1 !important; transform:none !important; animation:none !important; }
+  }
+  @keyframes gridMove { from { transform:translateY(0); } to { transform:translateY(60px); } }
+  @keyframes ticker   { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  @keyframes pulse    { 0%,100% { opacity:.5; transform:scale(1); } 50% { opacity:1; transform:scale(1.12); } }
+  @keyframes spinC    { from { transform:translate(-50%,-50%) rotate(0deg); } to { transform:translate(-50%,-50%) rotate(360deg); } }
+  @keyframes scanline { 0% { top:-4%; } 100% { top:106%; } }
+  @keyframes blink    { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+  /* ── Reveal ── */
+  .rv { opacity:0; transform:translateY(44px); transition:opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1); }
+  .rv.in { opacity:1; transform:translateY(0); }
+  .rv.d1 { transition-delay:.1s; }
+  .rv.d2 { transition-delay:.2s; }
+  .rv.d3 { transition-delay:.32s; }
+
+  /* ── Nav link ── */
+  .nl { font-family:'JetBrains Mono',monospace; font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); position:relative; transition:color .3s; }
+  .nl::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--accent); transition:width .3s; }
+  .nl:hover { color:var(--accent); }
+  .nl:hover::after { width:100%; }
+
+  /* ── Platform tab ── */
+  .ptab { border:none; transition:all .3s; }
+  .ptab:hover { background:rgba(240,237,230,.04) !important; }
+
+  /* ── Domain item ── */
+  .di { transition:padding-left .4s cubic-bezier(.16,1,.3,1), border-color .4s; }
+  .di:hover { padding-left:1.4rem !important; border-left-color:var(--accent) !important; }
+
+  /* ── Skill tag ── */
+  .sk { transition:border-color .3s, color .3s, background .3s; }
+  .sk:hover { border-color:var(--accent) !important; color:var(--accent) !important; background:rgba(0,245,160,.05) !important; }
+
+  /* ── Footer link ── */
+  .fl { display:block; transition:color .3s; }
+  .fl:hover { color:var(--accent) !important; }
+
+  /* ── Highlight row ── */
+  .hi { transition:background .3s, transform .2s, padding-left .2s; }
+  .hi:hover { background:rgba(0,245,160,.07) !important; padding-left:.5rem; }
+
+  /* ── Project card ── */
+  .pj { transition:transform .35s; }
+  .pj:hover { transform:translateY(-5px); }
+
+  /* ── CTA btn ── */
+  .ctab { transition:transform .2s, filter .2s; }
+  .ctab:hover { transform:translateY(-3px); filter:brightness(1.1); }
+
+  /* ══════════════════════════════
+     RESPONSIVE BREAKPOINTS
+  ══════════════════════════════ */
+
+  /* Tablet ≤ 900px */
+  @media (max-width: 900px) {
+    .hero-grid    { grid-template-columns: 1fr !important; }
+    .hero-right   { display: none !important; }
+    .domains-grid { grid-template-columns: 1fr !important; }
+    .domain-vis   { display: none !important; }
+    .proj-grid    { grid-template-columns: 1fr !important; }
+    .founder-grid { grid-template-columns: 1fr !important; }
+    .footer-grid  { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
+    .nav-links    { display: none !important; }
+  }
+
+  /* Mobile ≤ 600px */
+  @media (max-width: 600px) {
+    .plat-tabs    { grid-template-columns: 1fr !important; }
+    .plat-detail  { grid-template-columns: 1fr !important; }
+    .price-grid   { grid-template-columns: 1fr 1fr !important; }
+    .footer-grid  { grid-template-columns: 1fr !important; }
+    .hero-stats   { gap: 1.5rem !important; }
+    .cta-btns     { flex-direction: column !important; align-items: center !important; }
+    .founder-contacts { flex-direction: column !important; }
+    .proj-inner   { grid-template-columns: 1fr !important; }
+  }
+
+  /* Very small ≤ 380px */
+  @media (max-width: 380px) {
+    .hero-stats   { flex-wrap: wrap !important; }
+  }
+`;
+
+/* ── Inject styles once ── */
+if (!document.getElementById("ifiaas-styles")) {
+  const s = document.createElement("style");
+  s.id = "ifiaas-styles";
+  s.textContent = GLOBAL_CSS;
+  document.head.appendChild(s);
+}
+
+/* ═══════════════════════════════════════════
+   HOOKS
+═══════════════════════════════════════════ */
+function useReveal() {
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => entry.isIntersecting && setIsInView(true),
-      { threshold }
+    const els = document.querySelectorAll(".rv");
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); obs.unobserve(e.target); } }),
+      { threshold: 0.07 }
     );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [threshold]);
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  });
+}
 
-  return [ref, isInView];
-};
-
-const useParallax = (speed = 0.5) => {
-  const [offset, setOffset] = useState(0);
-  
+function useIsMobile() {
+  const [mobile, setMobile] = useState(window.innerWidth <= 600);
   useEffect(() => {
-    const handleScroll = () => setOffset(window.scrollY * speed);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [speed]);
-  
-  return offset;
-};
-
-const useMouseGlow = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMove = (e) => setPosition({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handleMove);
-    return () => window.removeEventListener('mousemove', handleMove);
+    const fn = () => setMobile(window.innerWidth <= 600);
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
   }, []);
+  return mobile;
+}
 
-  return position;
-};
-
-const useCountUp = (end, duration = 2000) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started) {
-          setStarted(true);
-          let startTime = null;
-          
-          const animate = (timestamp) => {
-            if (!startTime) startTime = timestamp;
-            const progress = Math.min((timestamp - startTime) / duration, 1);
-            const easeOut = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.floor(easeOut * end));
-            
-            if (progress < 1) {
-              requestAnimationFrame(animate);
-            } else {
-              setCount(end);
-            }
-          };
-          
-          requestAnimationFrame(animate);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [end, duration, started]);
-
-  return [ref, count];
-};
-
-const useTypewriter = (texts, speed = 100, pause = 2000) => {
-  const [index, setIndex] = useState(0);
-  const [text, setText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    const currentText = texts[index];
-    
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setText(currentText.slice(0, text.length + 1));
-        if (text === currentText) {
-          setTimeout(() => setIsDeleting(true), pause);
-        }
-      } else {
-        setText(currentText.slice(0, text.length - 1));
-        if (text === '') {
-          setIsDeleting(false);
-          setIndex((prev) => (prev + 1) % texts.length);
-        }
-      }
-    }, isDeleting ? speed / 2 : speed);
-
-    return () => clearTimeout(timeout);
-  }, [text, isDeleting, index, texts, speed, pause]);
-
-  return text;
-};
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// COMPOSANTS UI
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const GradientText = ({ children, theme }) => (
-  <span style={{
-    color: theme.accentAlt || theme.accent,
-    fontWeight: 'inherit',
-  }}>
-    {children}
-  </span>
-);
-
-const Badge = ({ children, icon, theme }) => (
-  <div style={{
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '10px 20px',
-    background: `${theme.accent}15`,
-    border: `1px solid ${theme.border}`,
-    borderRadius: '100px',
-    fontSize: '13px',
-    fontWeight: 500,
-    color: theme.accent,
-    letterSpacing: '0.05em',
-    backdropFilter: 'blur(10px)',
-  }}>
-    {icon && <span style={{ fontSize: '14px' }}>{icon}</span>}
-    {children}
+/* ═══════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════ */
+const Tag = ({ label }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: ".8rem", marginBottom: "1.2rem" }}>
+    <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".67rem", letterSpacing: ".25em", textTransform: "uppercase", color: "var(--accent)" }}>{label}</span>
+    <div style={{ width: 36, height: 1, background: "var(--accent)" }} />
   </div>
 );
 
-const AnimatedSection = ({ children, delay = 0, direction = 'up' }) => {
-  const [ref, isInView] = useInView(0.1);
-  
-  const transforms = {
-    up: 'translateY(60px)',
-    down: 'translateY(-60px)',
-    left: 'translateX(-60px)',
-    right: 'translateX(60px)',
+const SectionTitle = ({ children, style = {} }) => (
+  <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(2rem,3.5vw,3.6rem)", fontWeight: 600, lineHeight: 1.08, ...style }}>{children}</h2>
+);
+
+const Corner = ({ pos, color = "var(--accent)", size = 55 }) => {
+  const styles = {
+    tl: { top: -8, left: -8, borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` },
+    tr: { top: -8, right: -8, borderTop: `2px solid ${color}`, borderRight: `2px solid ${color}` },
+    bl: { bottom: -8, left: -8, borderBottom: `2px solid ${color}`, borderLeft: `2px solid ${color}` },
+    br: { bottom: -8, right: -8, borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` },
   };
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        opacity: isInView ? 1 : 0,
-        transform: isInView ? 'translate(0)' : transforms[direction],
-        transition: `all 0.9s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
-      }}
-    >
-      {children}
-    </div>
-  );
+  return <div style={{ position: "absolute", width: size, height: size, ...styles[pos] }} />;
 };
 
-const GlassCard = ({ children, theme, style = {}, hover = true, glow = false }) => {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      onMouseEnter={() => hover && setHovered(true)}
-      onMouseLeave={() => hover && setHovered(false)}
-      style={{
-        background: theme.cardBg,
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${hovered ? theme.borderHover : theme.border}`,
-        borderRadius: '24px',
-        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-        transform: hovered ? 'translateY(-8px)' : 'translateY(0)',
-        boxShadow: hovered && glow ? theme.glow : 'none',
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// PRELOADER
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const Preloader = ({ onComplete, theme }) => {
-  const [progress, setProgress] = useState(0);
-  const [phase, setPhase] = useState('loading');
+/* ═══════════════════════════════════════════
+   CURSOR  (hidden on touch devices)
+═══════════════════════════════════════════ */
+function Cursor() {
+  const dot = useRef(null);
+  const ring = useRef(null);
+  const pos = useRef({ x: 0, y: 0 });
+  const rp = useRef({ x: 0, y: 0 });
+  const [touch, setTouch] = useState(false);
 
   useEffect(() => {
-    const duration = 2000;
-    const start = Date.now();
-    
-    const animate = () => {
-      const elapsed = Date.now() - start;
-      const p = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 4);
-      setProgress(Math.floor(eased * 100));
-      
-      if (p < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        setPhase('complete');
-        setTimeout(onComplete, 600);
-      }
+    if ("ontouchstart" in window) { setTouch(true); return; }
+
+    const mv = (e) => {
+      pos.current = { x: e.clientX, y: e.clientY };
+      if (dot.current) { dot.current.style.left = e.clientX - 5 + "px"; dot.current.style.top = e.clientY - 5 + "px"; }
     };
-    
-    requestAnimationFrame(animate);
-  }, [onComplete]);
+    const big = () => dot.current && (dot.current.style.transform = "scale(2.8)");
+    const sm  = () => dot.current && (dot.current.style.transform = "scale(1)");
+    document.addEventListener("mousemove", mv);
+    document.querySelectorAll("a,button").forEach((el) => { el.addEventListener("mouseenter", big); el.addEventListener("mouseleave", sm); });
 
+    let raf;
+    const loop = () => {
+      rp.current.x += (pos.current.x - rp.current.x - 18) * 0.1;
+      rp.current.y += (pos.current.y - rp.current.y - 18) * 0.1;
+      if (ring.current) { ring.current.style.left = rp.current.x + "px"; ring.current.style.top = rp.current.y + "px"; }
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+    return () => { document.removeEventListener("mousemove", mv); cancelAnimationFrame(raf); };
+  }, []);
+
+  if (touch) return null;
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      background: theme.bg,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 10000,
-      opacity: phase === 'complete' ? 0 : 1,
-      transition: 'opacity 0.6s ease',
-    }}>
-      {/* Aurora Background */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: theme.gradientBg,
-        opacity: progress / 100,
-      }} />
-
-      {/* Logo */}
-      <div style={{
-        position: 'relative',
-        marginBottom: '50px',
-        opacity: progress > 20 ? 1 : 0,
-        transform: progress > 20 ? 'scale(1)' : 'scale(0.8)',
-        transition: 'all 0.6s ease',
-      }}>
-        <img 
-          src="/logo.png" 
-          alt="IFIAAS" 
-          style={{ 
-            height: '80px',
-            filter: `drop-shadow(${theme.glow})`,
-          }} 
-        />
-      </div>
-
-      {/* Progress Bar */}
-      <div style={{
-        width: '200px',
-        height: '3px',
-        background: theme.border,
-        borderRadius: '10px',
-        overflow: 'hidden',
-        position: 'relative',
-      }}>
-        <div style={{
-          width: `${progress}%`,
-          height: '100%',
-          background: theme.gradient,
-          borderRadius: '10px',
-          transition: 'width 0.1s ease',
-          boxShadow: theme.glow,
-        }} />
-      </div>
-
-      {/* Percentage */}
-      <p style={{
-        marginTop: '20px',
-        fontFamily: "'Inter', sans-serif",
-        fontSize: '14px',
-        color: theme.textSecondary,
-        letterSpacing: '0.1em',
-      }}>
-        {progress}%
-      </p>
-    </div>
+    <>
+      <div ref={dot} style={{ position: "fixed", width: 10, height: 10, background: "var(--accent)", borderRadius: "50%", pointerEvents: "none", zIndex: 9999, transition: "transform .18s", mixBlendMode: "difference" }} />
+      <div ref={ring} style={{ position: "fixed", width: 36, height: 36, border: "1px solid rgba(0,245,160,.32)", borderRadius: "50%", pointerEvents: "none", zIndex: 9998 }} />
+    </>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// HEADER
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const Header = ({ theme, currentTheme, setTheme }) => {
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [themeOpen, setThemeOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-      if (window.scrollY > 10 && mobileOpen) setMobileOpen(false);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [mobileOpen]);
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
 
-  const navItems = [
-    { label: 'Vision', href: '#vision' },
-    { label: 'Écosystème', href: '#ecosystem' },
-    { label: 'Services', href: '#services' },
-    { label: 'Roadmap', href: '#roadmap' },
-    { label: 'Contact', href: '#contact' },
-  ];
-
-  const scrollTo = (e, href) => {
-    e.preventDefault();
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
-    setMobileOpen(false);
-  };
+  const links = [["Plateformes", "#plateformes"], ["Domaines", "#domaines"], ["Projets", "#projets"], ["Fondateur", "#fondateur"]];
 
   return (
-    <header style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      background: scrolled || mobileOpen ? `${theme.bg}ee` : 'transparent',
-      backdropFilter: scrolled || mobileOpen ? 'blur(20px)' : 'none',
-      borderBottom: scrolled ? `1px solid ${theme.border}` : 'none',
-      transition: 'all 0.3s ease',
-      height: mobileOpen ? '100vh' : 'auto',
-    }}>
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        padding: '0 5%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: '80px',
-      }}>
-        {/* Logo */}
-        <a 
-          href="#" 
-          onClick={(e) => scrollTo(e, '#')}
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '14px', 
-            textDecoration: 'none',
-          }}
-        >
-          <img 
-            src={currentTheme === 'light' ? '/logo-light.png' : '/logo.png'} 
-            alt="IFIAAS" 
-            style={{ height: '48px' }} 
-          />
-          <span style={{ 
-            fontSize: '22px', 
-            fontWeight: 800, 
-            color: theme.accent,
-            fontFamily: "'Clash Display', sans-serif",
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            position: 'relative',
-            textShadow: `0 0 20px ${theme.accent}50, 0 0 40px ${theme.accent}30`,
-          }}>
-            I
-            <span style={{ color: theme.accentAlt }}>F</span>
-            I
-            <span style={{ color: theme.accentAlt }}>A</span>
-            A
-            <span style={{ color: theme.accentPink }}>S</span>
-            <span style={{
-              position: 'absolute',
-              bottom: '-4px',
-              left: 0,
-              width: '100%',
-              height: '2px',
-              background: theme.gradient,
-              borderRadius: '2px',
-            }} />
-          </span>
+    <>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 500, padding: `1.3rem var(--px)`, display: "flex", alignItems: "center", justifyContent: "space-between", backdropFilter: "blur(20px)", background: scrolled ? "rgba(6,8,13,.9)" : "transparent", borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent", transition: "all .5s" }}>
+        <a href="#" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "1.15rem", fontWeight: 700, letterSpacing: ".2em", color: "var(--accent)" }}>IFIAAS</a>
+
+        {/* Desktop links */}
+        <div className="nav-links" style={{ display: "flex", gap: "2.5rem" }}>
+          {links.map(([l, h]) => <a key={l} href={h} className="nl">{l}</a>)}
+        </div>
+
+        {/* Desktop CTA */}
+        <a href="https://wa.me/22967455462" target="_blank" rel="noreferrer"
+          className="nav-links"
+          style={{ background: "var(--accent)", color: "#000", padding: ".55rem 1.5rem", fontFamily: "'JetBrains Mono',monospace", fontSize: ".7rem", fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", clipPath: "polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%)", transition: "background .3s" }}
+          onMouseEnter={e => e.currentTarget.style.background = "var(--gold2)"}
+          onMouseLeave={e => e.currentTarget.style.background = "var(--accent)"}>
+          Contact
         </a>
 
-        {/* Desktop Nav */}
-        <nav className="desktop-nav" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '36px',
-        }}>
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              onClick={(e) => scrollTo(e, item.href)}
-              style={{
-                color: theme.textSecondary,
-                textDecoration: 'none',
-                fontSize: '14px',
-                fontWeight: 500,
-                transition: 'color 0.2s ease',
-                position: 'relative',
-              }}
-              onMouseEnter={(e) => e.target.style.color = theme.text}
-              onMouseLeave={(e) => e.target.style.color = theme.textSecondary}
-            >
-              {item.label}
+        {/* Hamburger (mobile) */}
+        <button onClick={() => setMenuOpen(!menuOpen)}
+          style={{ display: "none", background: "none", border: "none", padding: ".5rem", flexDirection: "column", gap: "5px" }}
+          className="hamburger">
+          {[0, 1, 2].map(i => (
+            <span key={i} style={{ display: "block", width: 24, height: 2, background: menuOpen && i === 1 ? "transparent" : "var(--accent)", borderRadius: 2, transition: "all .3s", transform: menuOpen ? (i === 0 ? "rotate(45deg) translate(5px,5px)" : i === 2 ? "rotate(-45deg) translate(5px,-5px)" : "none") : "none" }} />
+          ))}
+        </button>
+      </nav>
+
+      {/* Mobile menu overlay */}
+      {menuOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 490, background: "rgba(6,8,13,.97)", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.5rem" }}>
+          {links.map(([l, h]) => (
+            <a key={l} href={h} onClick={() => setMenuOpen(false)}
+              style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(2rem,8vw,3rem)", fontWeight: 600, color: "var(--white)", transition: "color .3s" }}
+              onMouseEnter={e => e.currentTarget.style.color = "var(--accent)"}
+              onMouseLeave={e => e.currentTarget.style.color = "var(--white)"}>
+              {l}
             </a>
           ))}
-
-          {/* Theme Selector */}
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setThemeOpen(!themeOpen)}
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.3s ease',
-              }}
-            >
-              <div style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                background: theme.gradient,
-              }} />
-            </button>
-
-            {themeOpen && (
-              <div style={{
-                position: 'absolute',
-                top: '50px',
-                right: 0,
-                background: theme.bgSecondary,
-                border: `1px solid ${theme.border}`,
-                borderRadius: '16px',
-                padding: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                minWidth: '180px',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-              }}>
-                {Object.entries(themes).map(([key, t]) => (
-                  <button
-                    key={key}
-                    onClick={() => { setTheme(key); setThemeOpen(false); }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      padding: '10px 14px',
-                      background: currentTheme === key ? `${t.accent}20` : 'transparent',
-                      border: 'none',
-                      borderRadius: '10px',
-                      cursor: 'pointer',
-                      transition: 'background 0.2s ease',
-                    }}
-                  >
-                    <div style={{
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      background: t.gradient,
-                      boxShadow: currentTheme === key ? t.glow : 'none',
-                    }} />
-                    <span style={{ 
-                      color: theme.text, 
-                      fontSize: '13px',
-                      fontWeight: currentTheme === key ? 600 : 400,
-                    }}>
-                      {t.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* CTA */}
-          <a
-            href="#contact"
-            onClick={(e) => scrollTo(e, '#contact')}
-            style={{
-              padding: '12px 24px',
-              background: theme.gradient,
-              borderRadius: '12px',
-              color: '#fff',
-              fontSize: '14px',
-              fontWeight: 600,
-              textDecoration: 'none',
-              transition: 'all 0.3s ease',
-              boxShadow: theme.glow,
-            }}
-          >
-            Nous contacter
+          <a href="https://wa.me/22967455462" target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}
+            style={{ marginTop: "1rem", background: "var(--accent)", color: "#000", padding: ".9rem 2.5rem", fontFamily: "'JetBrains Mono',monospace", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)" }}>
+            WhatsApp
           </a>
-        </nav>
-
-        {/* Mobile Controls */}
-        <div className="mobile-controls" style={{
-          display: 'none',
-          alignItems: 'center',
-          gap: '12px',
-        }}>
-          {/* Theme Button Mobile */}
-          <button
-            onClick={() => {
-              const themeKeys = Object.keys(themes);
-              const currentIndex = themeKeys.indexOf(currentTheme);
-              const nextIndex = (currentIndex + 1) % themeKeys.length;
-              setTheme(themeKeys[nextIndex]);
-            }}
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
-              background: theme.cardBg,
-              border: `1px solid ${theme.border}`,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <div style={{
-              width: '18px',
-              height: '18px',
-              borderRadius: '50%',
-              background: theme.gradient,
-            }} />
-          </button>
-
-          {/* Hamburger */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
-              background: theme.cardBg,
-              border: `1px solid ${theme.border}`,
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '5px',
-            }}
-          >
-            <span style={{
-              width: '18px',
-              height: '2px',
-              background: theme.text,
-              borderRadius: '2px',
-              transition: 'all 0.3s ease',
-              transform: mobileOpen ? 'rotate(45deg) translateY(5px)' : 'none',
-            }} />
-            <span style={{
-              width: '18px',
-              height: '2px',
-              background: theme.text,
-              borderRadius: '2px',
-              opacity: mobileOpen ? 0 : 1,
-              transition: 'all 0.3s ease',
-            }} />
-            <span style={{
-              width: '18px',
-              height: '2px',
-              background: theme.text,
-              borderRadius: '2px',
-              transition: 'all 0.3s ease',
-              transform: mobileOpen ? 'rotate(-45deg) translateY(-5px)' : 'none',
-            }} />
-          </button>
         </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <nav style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '32px',
-          flex: 1,
-          paddingBottom: '100px',
-        }}>
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              onClick={(e) => scrollTo(e, item.href)}
-              style={{
-                color: theme.text,
-                textDecoration: 'none',
-                fontSize: '28px',
-                fontWeight: 600,
-                fontFamily: "'Clash Display', sans-serif",
-              }}
-            >
-              {item.label}
-            </a>
-          ))}
-          <a
-            href="#contact"
-            onClick={(e) => scrollTo(e, '#contact')}
-            style={{
-              marginTop: '20px',
-              padding: '16px 40px',
-              background: theme.gradient,
-              borderRadius: '14px',
-              color: '#fff',
-              fontSize: '16px',
-              fontWeight: 600,
-              textDecoration: 'none',
-            }}
-          >
-            Nous contacter
-          </a>
-        </nav>
       )}
 
+      {/* Inject hamburger visibility via style */}
       <style>{`
         @media (max-width: 900px) {
-          .desktop-nav { display: none !important; }
-          .mobile-controls { display: flex !important; }
+          .hamburger { display: flex !important; }
         }
       `}</style>
-    </header>
+    </>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// HERO SECTION
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const HeroSection = ({ theme }) => {
-  const [loaded, setLoaded] = useState(false);
-  const parallax = useParallax(0.3);
-  const mouse = useMouseGlow();
-  const typedText = useTypewriter([
-    'digitale',
-    'financière',
-    'technologique',
-    'panafricaine',
-  ], 120, 2500);
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+function Hero() {
+  const words = ["l'informatique", "la finance", "l'agriculture", "GigaZone WiFi", "la tontine digitale"];
+  const [typed, setTyped] = useState("");
+  const wi = useRef(0), ci = useRef(0), del = useRef(false);
 
   useEffect(() => {
-    setTimeout(() => setLoaded(true), 100);
+    let t;
+    const run = () => {
+      const w = words[wi.current];
+      if (!del.current) {
+        ci.current++;
+        setTyped(w.slice(0, ci.current));
+        if (ci.current === w.length) { del.current = true; t = setTimeout(run, 1900); return; }
+      } else {
+        ci.current--;
+        setTyped(w.slice(0, ci.current));
+        if (ci.current === 0) { del.current = false; wi.current = (wi.current + 1) % words.length; }
+      }
+      t = setTimeout(run, del.current ? 55 : 100);
+    };
+    t = setTimeout(run, 900);
+    return () => clearTimeout(t);
   }, []);
 
   return (
-    <section style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      textAlign: 'center',
-      padding: '140px 5% 100px',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Aurora Background */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: theme.gradientBg,
-        transform: `translateY(${parallax * 0.5}px)`,
-      }} />
-
-      {/* Mesh Gradient */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: `
-          radial-gradient(at 20% 30%, ${theme.accent}20 0px, transparent 50%),
-          radial-gradient(at 80% 20%, ${theme.accentAlt}15 0px, transparent 50%),
-          radial-gradient(at 40% 80%, ${theme.accentPink}10 0px, transparent 50%)
-        `,
-        opacity: loaded ? 1 : 0,
-        transition: 'opacity 2s ease',
-      }} />
-
-      {/* Grid Pattern */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: `
-          linear-gradient(${theme.border} 1px, transparent 1px),
-          linear-gradient(90deg, ${theme.border} 1px, transparent 1px)
-        `,
-        backgroundSize: '80px 80px',
-        transform: `translate(${(mouse.x - window.innerWidth / 2) * 0.02}px, ${(mouse.y - window.innerHeight / 2) * 0.02}px)`,
-        opacity: 0.5,
-        transition: 'transform 0.5s ease-out',
-      }} />
-
-      {/* Floating Orbs */}
-      <div style={{
-        position: 'absolute',
-        top: '15%',
-        left: '10%',
-        width: '300px',
-        height: '300px',
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${theme.accent}30 0%, transparent 70%)`,
-        filter: 'blur(60px)',
-        animation: 'float 8s ease-in-out infinite',
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '20%',
-        right: '10%',
-        width: '250px',
-        height: '250px',
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${theme.accentAlt}25 0%, transparent 70%)`,
-        filter: 'blur(50px)',
-        animation: 'float 10s ease-in-out infinite reverse',
-      }} />
-
-      {/* Content */}
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1100px' }}>
-        {/* Badge */}
-        <div style={{
-          opacity: loaded ? 1 : 0,
-          transform: loaded ? 'translateY(0)' : 'translateY(30px)',
-          transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s',
-        }}>
-          <Badge icon="🌍" theme={theme}>
-            Holding Digitale & Financière Panafricaine
-          </Badge>
-        </div>
-
-        {/* Main Title */}
-        <h1 style={{
-          fontFamily: "'DM Serif Display', 'Playfair Display', Georgia, serif",
-          fontSize: 'clamp(40px, 8vw, 80px)',
-          fontWeight: 400,
-          lineHeight: 1.1,
-          margin: '40px 0 30px',
-          letterSpacing: '-0.01em',
-        }}>
-          <span style={{
-            display: 'block',
-            opacity: loaded ? 1 : 0,
-            transform: loaded ? 'translateY(0)' : 'translateY(40px)',
-            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s',
-          }}>
-            Bâtir l'infrastructure
-          </span>
-          <span style={{
-            display: 'block',
-            opacity: loaded ? 1 : 0,
-            transform: loaded ? 'translateY(0)' : 'translateY(40px)',
-            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s',
-            minHeight: '1.1em',
-            fontStyle: 'italic',
-          }}>
-            <GradientText theme={theme}>{typedText}</GradientText>
-            <span style={{
-              display: 'inline-block',
-              width: '3px',
-              height: '0.85em',
-              background: theme.accent,
-              marginLeft: '6px',
-              animation: 'blink 1s step-end infinite',
-              verticalAlign: 'middle',
-            }} />
-          </span>
-          <span style={{
-            display: 'block',
-            opacity: loaded ? 1 : 0,
-            transform: loaded ? 'translateY(0)' : 'translateY(40px)',
-            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s',
-          }}>
-            de l'Afrique
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 'clamp(16px, 2vw, 20px)',
-          color: theme.textSecondary,
-          maxWidth: '650px',
-          margin: '0 auto 50px',
-          lineHeight: 1.8,
-          opacity: loaded ? 1 : 0,
-          transform: loaded ? 'translateY(0)' : 'translateY(30px)',
-          transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1s',
-        }}>
-          Nous connectons, finançons et développons l'économie africaine 
-          à travers des solutions technologiques innovantes.
-        </p>
-
-        {/* CTA Buttons */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          opacity: loaded ? 1 : 0,
-          transform: loaded ? 'translateY(0)' : 'translateY(30px)',
-          transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s',
-        }}>
-          <CTAButton primary theme={theme} href="#services">
-            Découvrir nos services
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </CTAButton>
-          <CTAButton theme={theme} href="#ecosystem">
-            Notre écosystème
-          </CTAButton>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div style={{
-          marginTop: '80px',
-          opacity: loaded ? 1 : 0,
-          transition: 'opacity 1s ease 1.5s',
-        }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-            animation: 'bounce 2s ease-in-out infinite',
-          }}>
-            <span style={{
-              fontSize: '13px',
-              color: theme.textMuted,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-            }}>
-              Découvrir
-            </span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.textMuted} strokeWidth="2">
-              <path d="M12 5v14M5 12l7 7 7-7"/>
-            </svg>
-          </div>
-        </div>
+    <section style={{ minHeight: "100vh", padding: `clamp(7rem,14vw,11rem) var(--px) clamp(4rem,8vw,7rem)`, position: "relative", overflow: "hidden" }}>
+      {/* BG layers */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(0,245,160,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,160,.032) 1px,transparent 1px)", backgroundSize: "60px 60px", animation: "gridMove 15s linear infinite" }} />
+        {[[600, "rgba(13,110,63,.17)", "-10%", null, "-5%", null], [420, "rgba(212,168,67,.11)", "38%", null, null, "3%"], [280, "rgba(0,245,160,.08)", null, "8%", "18%", null]].map(([s, bg, top, bottom, left, right], i) => (
+          <div key={i} style={{ position: "absolute", width: s, height: s, borderRadius: "50%", background: bg, filter: "blur(80px)", top, bottom, left, right, animation: `float ${10 + i}s ease-in-out infinite`, animationDelay: `${-i * 3}s` }} />
+        ))}
+        <div style={{ position: "absolute", left: 0, right: 0, height: 2, background: "linear-gradient(90deg,transparent,rgba(0,245,160,.14),transparent)", animation: "scanline 8s linear infinite" }} />
       </div>
 
-      <style>{`
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(10px); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0) scale(1); }
-          50% { transform: translateY(-30px) scale(1.05); }
-        }
-      `}</style>
-    </section>
-  );
-};
-
-const CTAButton = ({ children, primary, theme, href, onClick }) => {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <a
-      href={href}
-      onClick={(e) => {
-        e.preventDefault();
-        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
-        onClick && onClick();
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: primary ? '18px 36px' : '16px 32px',
-        background: primary ? theme.gradient : 'transparent',
-        border: primary ? 'none' : `1px solid ${hovered ? theme.borderHover : theme.border}`,
-        borderRadius: '14px',
-        color: theme.text,
-        fontSize: '15px',
-        fontWeight: 600,
-        cursor: 'pointer',
-        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-        boxShadow: hovered && primary ? theme.glow : 'none',
-        textDecoration: 'none',
-      }}
-    >
-      {children}
-    </a>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// VISION SECTION
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const VisionSection = ({ theme }) => {
-  const stats = [
-    { value: '2024', label: 'Fondation' },
-    { value: '6+', label: 'Plateformes' },
-    { value: '∞', label: 'Ambition' },
-  ];
-
-  return (
-    <section id="vision" style={{
-      padding: '150px 5%',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Background Accent */}
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        width: '60%',
-        height: '60%',
-        background: `radial-gradient(ellipse, ${theme.accent}08 0%, transparent 70%)`,
-        transform: 'translate(-50%, -50%)',
-      }} />
-
-      <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative' }}>
-        {/* Header - Centered */}
-        <AnimatedSection>
-          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-            <Badge icon="🎯" theme={theme}>Notre Vision</Badge>
-            
-            <h2 style={{
-              fontFamily: "'Clash Display', sans-serif",
-              fontSize: 'clamp(36px, 5vw, 56px)',
-              fontWeight: 700,
-              lineHeight: 1.1,
-              marginTop: '30px',
-              marginBottom: '30px',
-              letterSpacing: '-0.02em',
-            }}>
-              Transformer le <GradientText theme={theme}>paysage économique</GradientText> africain
-            </h2>
-
-            <p style={{
-              fontSize: '17px',
-              color: theme.textSecondary,
-              lineHeight: 1.9,
-              maxWidth: '700px',
-              margin: '0 auto 40px',
-            }}>
-              IFIAAS est plus qu'une entreprise : c'est un mouvement. Nous construisons 
-              les ponts technologiques et financiers qui permettront à l'Afrique de 
-              réaliser son plein potentiel dans l'économie mondiale.
-            </p>
-
-            {/* Stats - Centered */}
-            <div style={{
-              display: 'flex',
-              gap: '60px',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-            }}>
-              {stats.map((stat, i) => (
-                <div key={i} style={{ textAlign: 'center' }}>
-                  <div style={{
-                    fontFamily: "'Clash Display', sans-serif",
-                    fontSize: '42px',
-                    fontWeight: 700,
-                  }}>
-                    <GradientText theme={theme}>{stat.value}</GradientText>
-                  </div>
-                  <div style={{
-                    fontSize: '14px',
-                    color: theme.textMuted,
-                    marginTop: '4px',
-                  }}>
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
+      <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.1fr .9fr", gap: "4rem", alignItems: "center", position: "relative", zIndex: 2 }}>
+        {/* LEFT */}
+        <div>
+          <div className="hero-force-visible" style={{ display: "flex", alignItems: "center", gap: ".8rem", marginBottom: "2.2rem", animation: "fadeUp .8s .1s both" }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)", animation: "pulse 2s infinite" }} />
+            <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.6rem,.8vw,.7rem)", letterSpacing: ".22em", textTransform: "uppercase", color: "var(--accent)" }}>Bénin · Innovation · Impact</span>
           </div>
-        </AnimatedSection>
 
-        {/* Vision Cards - Centered Grid */}
-        <AnimatedSection delay={200}>
-          <div 
-            className="vision-cards-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '20px',
-              maxWidth: '900px',
-              margin: '0 auto',
-            }}
-          >
-            {[
-              { icon: '🔗', title: 'Connecter', desc: 'Relier les talents et opportunités' },
-              { icon: '💰', title: 'Financer', desc: 'Faciliter l\'accès aux capitaux' },
-              { icon: '📈', title: 'Investir', desc: 'Soutenir les projets innovants' },
-              { icon: '🚀', title: 'Développer', desc: 'Accélérer la croissance' },
-            ].map((item, i) => (
-              <GlassCard 
-                key={i} 
-                theme={theme} 
-                glow
-                style={{ padding: '28px', textAlign: 'center' }}
-              >
-                <div style={{
-                  fontSize: '36px',
-                  marginBottom: '16px',
-                }}>
-                  {item.icon}
-                </div>
-                <h4 style={{
-                  fontSize: '18px',
-                  fontWeight: 600,
-                  marginBottom: '8px',
-                  color: theme.text,
-                }}>
-                  {item.title}
-                </h4>
-                <p style={{
-                  fontSize: '13px',
-                  color: theme.textSecondary,
-                  lineHeight: 1.5,
-                }}>
-                  {item.desc}
-                </p>
-              </GlassCard>
+          <h1 className="hero-force-visible" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(2.6rem,5.5vw,5.5rem)", lineHeight: 1.05, fontWeight: 600, marginBottom: "1.8rem", animation: "fadeUp .8s .25s both" }}>
+            Construire l'avenir<br />
+            par{" "}
+            <em style={{ fontStyle: "italic", color: "var(--gold2)" }}>
+              {typed}<span style={{ animation: "blink 1s infinite", color: "var(--accent)" }}>|</span>
+            </em>
+          </h1>
+
+          <p className="hero-force-visible" style={{ fontSize: "clamp(.88rem,1.2vw,1rem)", lineHeight: 1.82, color: "var(--muted)", maxWidth: 460, marginBottom: "2.5rem", animation: "fadeUp .8s .4s both" }}>
+            IFIAAS crée des outils numériques concrets — WiFi rentable, tontine digitale, chat IA. Des solutions bâties depuis Zinvié, Bénin, pour l'Afrique et le monde.
+          </p>
+
+          <div className="hero-force-visible" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", animation: "fadeUp .8s .55s both" }}>
+            <a href="#plateformes"
+              style={{ background: "var(--green)", color: "var(--white)", padding: ".95rem 2rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.72rem,.85vw,.8rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)", transition: "background .3s, transform .2s" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "var(--green2)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "var(--green)"; e.currentTarget.style.transform = "translateY(0)"; }}>
+              Nos plateformes →
+            </a>
+            <a href="#fondateur"
+              style={{ background: "transparent", color: "var(--white)", padding: ".95rem 2rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.72rem,.85vw,.8rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", border: "1px solid var(--border)", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)", transition: "border-color .3s, color .3s" }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--white)"; }}>
+              À propos
+            </a>
+          </div>
+
+          <div className="hero-stats hero-force-visible" style={{ display: "flex", gap: "2.5rem", marginTop: "3.5rem", paddingTop: "2rem", borderTop: "1px solid var(--border)", animation: "fadeUp .8s .7s both", flexWrap: "wrap" }}>
+            {[["3+", "Plateformes live"], ["3", "Secteurs clés"], ["∞", "Vision & projets"]].map(([n, l]) => (
+              <div key={l}>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(1.6rem,2.5vw,2rem)", color: "var(--accent)", lineHeight: 1 }}>{n}</div>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.55rem,.65vw,.62rem)", color: "var(--muted)", letterSpacing: ".1em", textTransform: "uppercase", marginTop: ".3rem" }}>{l}</div>
+              </div>
             ))}
           </div>
-        </AnimatedSection>
-
-        {/* Quote - Centered */}
-        <AnimatedSection delay={400}>
-          <div style={{
-            marginTop: '80px',
-            textAlign: 'center',
-            padding: '50px',
-            background: theme.cardBg,
-            backdropFilter: 'blur(20px)',
-            border: `1px solid ${theme.border}`,
-            borderRadius: '24px',
-          }}>
-            <p style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: 'clamp(20px, 3vw, 28px)',
-              fontStyle: 'italic',
-              color: theme.text,
-              lineHeight: 1.6,
-            }}>
-              "Les fondations sont posées. <GradientText theme={theme}>L'avenir se construit.</GradientText>"
-            </p>
-          </div>
-        </AnimatedSection>
-      </div>
-
-      <style>{`
-        @media (max-width: 800px) {
-          .vision-cards-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-        @media (max-width: 500px) {
-          .vision-cards-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// ECOSYSTEM SECTION
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const EcosystemSection = ({ theme }) => {
-  const platforms = [
-    {
-      name: 'GigaZone',
-      tagline: 'Internet Haut Débit',
-      description: 'Plateforme de WiFi public intelligent avec Internet haut débit et portail captif. Déployée à Zinvié et environs.',
-      icon: '📡',
-      gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-      status: 'active',
-      link: 'https://z.ifiaas.com',
-    },
-    {
-      name: 'ifiMoney',
-      tagline: 'Tontine Digitale',
-      description: 'Plateforme de tontine digitale sécurisée pour gérer l\'épargne collective de manière transparente.',
-      icon: '💰',
-      gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-      status: 'active',
-      link: 'https://money.ifiaas.com',
-    },
-    {
-      name: 'Services Numériques',
-      tagline: 'Solutions Digitales',
-      description: 'Suite de services numériques pour faciliter les démarches administratives et commerciales.',
-      icon: '🔧',
-      gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-      status: 'coming',
-      link: null,
-    },
-    {
-      name: 'Investissements',
-      tagline: 'Crowdfunding Africain',
-      description: 'Plateforme d\'investissement participatif pour projets structurants en Afrique.',
-      icon: '📈',
-      gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-      status: 'coming',
-      link: null,
-    },
-    {
-      name: 'ifiMarket',
-      tagline: 'Marketplace Panafricaine',
-      description: 'Place de marché digitale connectant vendeurs et acheteurs à travers l\'Afrique.',
-      icon: '🛒',
-      gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
-      status: 'coming',
-      link: null,
-    },
-    {
-      name: 'Agriculture & Impact',
-      tagline: 'AgriTech Durable',
-      description: 'Solutions technologiques pour l\'agriculture et le développement durable en Afrique.',
-      icon: '🌱',
-      gradient: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-      status: 'coming',
-      link: null,
-    },
-  ];
-
-  return (
-    <section id="ecosystem" style={{
-      padding: '150px 5%',
-      background: theme.bgSecondary,
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Background Effect */}
-      <div style={{
-        position: 'absolute',
-        top: '0',
-        right: '0',
-        width: '50%',
-        height: '100%',
-        background: `radial-gradient(ellipse at right, ${theme.accent}05 0%, transparent 60%)`,
-      }} />
-
-      <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
-        <AnimatedSection>
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <Badge icon="⚡" theme={theme}>Notre Écosystème</Badge>
-            <h2 style={{
-              fontFamily: "'Clash Display', sans-serif",
-              fontSize: 'clamp(36px, 5vw, 56px)',
-              fontWeight: 700,
-              marginTop: '30px',
-              letterSpacing: '-0.02em',
-            }}>
-              6 plateformes, <GradientText theme={theme}>1 vision</GradientText>
-            </h2>
-            <p style={{
-              fontSize: '17px',
-              color: theme.textSecondary,
-              maxWidth: '600px',
-              margin: '20px auto 0',
-              lineHeight: 1.8,
-            }}>
-              Un écosystème complet de solutions digitales et financières conçues pour l'Afrique.
-            </p>
-          </div>
-        </AnimatedSection>
-
-        {/* Grid Layout - 3 colonnes égales */}
-        <div 
-          className="ecosystem-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '24px',
-          }}
-        >
-          {platforms.map((platform, index) => (
-            <AnimatedSection key={index} delay={index * 100}>
-              <PlatformCard platform={platform} theme={theme} />
-            </AnimatedSection>
-          ))}
         </div>
 
-        <style>{`
-          @media (max-width: 1000px) {
-            .ecosystem-grid {
-              grid-template-columns: repeat(2, 1fr) !important;
-            }
-          }
-          @media (max-width: 600px) {
-            .ecosystem-grid {
-              grid-template-columns: 1fr !important;
-            }
-          }
-        `}</style>
-      </div>
-    </section>
-  );
-};
-
-const PlatformCard = ({ platform, theme }) => {
-  const [hovered, setHovered] = useState(false);
-
-  const CardWrapper = platform.link ? 'a' : 'div';
-  const cardProps = platform.link ? {
-    href: platform.link,
-    target: '_blank',
-    rel: 'noopener noreferrer',
-    style: { textDecoration: 'none' },
-  } : {};
-
-  return (
-    <CardWrapper
-      {...cardProps}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'block',
-        background: theme.cardBg,
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${hovered ? theme.borderHover : theme.border}`,
-        borderRadius: '24px',
-        padding: '36px',
-        position: 'relative',
-        overflow: 'hidden',
-        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-        transform: hovered ? 'translateY(-8px)' : 'translateY(0)',
-        cursor: 'pointer',
-        height: '100%',
-        textDecoration: 'none',
-      }}
-    >
-      {/* Gradient Background on Hover */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: platform.gradient,
-        opacity: hovered ? 0.1 : 0,
-        transition: 'opacity 0.5s ease',
-      }} />
-
-      {/* Status Badge */}
-      <div style={{
-        position: 'absolute',
-        top: '24px',
-        right: '24px',
-        padding: '6px 14px',
-        background: platform.status === 'active' 
-          ? 'rgba(16, 185, 129, 0.15)' 
-          : 'rgba(245, 158, 11, 0.15)',
-        borderRadius: '100px',
-        fontSize: '11px',
-        fontWeight: 600,
-        color: platform.status === 'active' ? '#10b981' : '#f59e0b',
-        letterSpacing: '0.05em',
-      }}>
-        {platform.status === 'active' ? '● ACTIF' : '◐ BIENTÔT'}
-      </div>
-
-      {/* Icon */}
-      <div style={{
-        width: '64px',
-        height: '64px',
-        borderRadius: '20px',
-        background: platform.gradient,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '28px',
-        marginBottom: '24px',
-        transition: 'transform 0.4s ease',
-        transform: hovered ? 'scale(1.1) rotate(5deg)' : 'scale(1)',
-        boxShadow: hovered ? `0 20px 40px ${platform.gradient.match(/#[a-f0-9]{6}/i)?.[0]}40` : 'none',
-        flexShrink: 0,
-      }}>
-        {platform.icon}
-      </div>
-
-      {/* Content */}
-      <div style={{ position: 'relative', flex: 1 }}>
-        <p style={{
-          fontSize: '12px',
-          color: theme.accent,
-          fontWeight: 600,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          marginBottom: '8px',
-        }}>
-          {platform.tagline}
-        </p>
-        <h3 style={{
-          fontFamily: "'Clash Display', sans-serif",
-          fontSize: '24px',
-          fontWeight: 700,
-          marginBottom: '12px',
-          color: theme.text,
-        }}>
-          {platform.name}
-        </h3>
-        <p style={{
-          fontSize: '15px',
-          color: theme.textSecondary,
-          lineHeight: 1.7,
-        }}>
-          {platform.description}
-        </p>
-      </div>
-
-      {/* Arrow / Link indicator */}
-      <div style={{
-        width: '44px',
-        height: '44px',
-        borderRadius: '50%',
-        background: hovered ? `${theme.accent}20` : 'transparent',
-        border: `1px solid ${hovered ? theme.accent : theme.border}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'all 0.4s ease',
-        marginTop: '24px',
-        alignSelf: 'flex-end',
-        position: 'absolute',
-        bottom: '36px',
-        right: '36px',
-      }}>
-        <svg 
-          width="18" 
-          height="18" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke={hovered ? theme.accent : theme.textMuted} 
-          strokeWidth="2"
-          style={{ transition: 'stroke 0.3s ease' }}
-        >
-          {platform.link ? (
-            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
-          ) : (
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
-          )}
-        </svg>
-      </div>
-    </CardWrapper>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// SERVICES SECTION
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const ServicesSection = ({ theme }) => {
-  const services = [
-    {
-      icon: '🌐',
-      title: 'Création & Hébergement Web',
-      description: 'Sites statiques et dynamiques, hébergement cloud sécurisé avec maintenance incluse.',
-      features: ['Sites vitrines', 'E-commerce', 'Applications web', 'Hébergement cloud'],
-      color: '#8b5cf6',
-    },
-    {
-      icon: '🎨',
-      title: 'Conception Graphique',
-      description: 'Identité visuelle complète et création de tous types de supports visuels.',
-      features: ['Logos', 'Affiches', 'Flyers', 'Bannières'],
-      color: '#ec4899',
-    },
-    {
-      icon: '💸',
-      title: 'Transfert Mobile Money',
-      description: 'Services de transfert rapides et sécurisés via tous les opérateurs.',
-      features: ['MTN Money', 'Moov Money', 'Celtis Cash', 'International'],
-      color: '#10b981',
-    },
-    {
-      icon: '📡',
-      title: 'Technicien WifiZone',
-      description: 'Installation professionnelle de réseaux et vente de matériels.',
-      features: ['Installation WiFi', 'Configuration', 'Équipements', 'Maintenance'],
-      color: '#06b6d4',
-    },
-    {
-      icon: '🛒',
-      title: 'Commerce Général',
-      description: 'Activités commerciales diversifiées pour le marché local et régional.',
-      features: ['Import/Export', 'Distribution', 'Partenariats', 'Vente en gros'],
-      color: '#f59e0b',
-    },
-  ];
-
-  return (
-    <section id="services" style={{
-      padding: '150px 5%',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Background */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: `
-          radial-gradient(at 10% 20%, ${theme.accent}08 0%, transparent 50%),
-          radial-gradient(at 90% 80%, ${theme.accentAlt}05 0%, transparent 50%)
-        `,
-      }} />
-
-      <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
-        <AnimatedSection>
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <Badge icon="🚀" theme={theme}>Nos Services</Badge>
-            <h2 style={{
-              fontFamily: "'Clash Display', sans-serif",
-              fontSize: 'clamp(36px, 5vw, 56px)',
-              fontWeight: 700,
-              marginTop: '30px',
-              letterSpacing: '-0.02em',
-            }}>
-              Solutions <GradientText theme={theme}>sur mesure</GradientText>
-            </h2>
-            <p style={{
-              fontSize: '17px',
-              color: theme.textSecondary,
-              maxWidth: '600px',
-              margin: '20px auto 0',
-              lineHeight: 1.8,
-            }}>
-              Une gamme complète de services pour accompagner votre croissance digitale et commerciale.
-            </p>
+        {/* RIGHT VISUAL */}
+        <div className="hero-right" style={{ position: "relative", height: "min(520px,50vw)" }}>
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "min(280px,26vw)", height: "min(280px,26vw)", borderRadius: "50%", background: "radial-gradient(ellipse at 40% 35%,rgba(0,245,160,.15) 0%,rgba(13,110,63,.08) 50%,transparent 70%)", border: "1px solid rgba(0,245,160,.12)", animation: "float 8s ease-in-out infinite", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.8rem,3vw,2.8rem)", color: "rgba(0,245,160,.3)", fontStyle: "italic" }}>IFI</span>
           </div>
-        </AnimatedSection>
-
-        {/* Services Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
-          gap: '24px',
-          justifyContent: 'center',
-        }}>
-          {services.map((service, index) => (
-            <AnimatedSection key={index} delay={index * 100}>
-              <ServiceCard service={service} theme={theme} />
-            </AnimatedSection>
+          {[[340, "rgba(0,245,160,.06)", 30], [430, "rgba(212,168,67,.05)", 50]].map(([s, c, d]) => (
+            <div key={s} style={{ position: "absolute", top: "50%", left: "50%", width: s, height: s, borderRadius: "50%", border: `1px dashed ${c}`, animation: `spinC ${d}s linear infinite`, marginTop: -s / 2, marginLeft: -s / 2 }} />
           ))}
+          {[
+            { icon: "📶", label: "GigaZone WiFi Pro", sub: "z.ifiaas.com", top: "4%", left: "-5%" , delay: "0s" },
+            { icon: "🏦", label: "ifiMoney — Tontine", sub: "money.ifiaas.com", top: "37%", right: "-8%", delay: "-2.5s" },
+            { icon: "💬", label: "ifiChat Live", sub: "chat.ifiaas.com", bottom: "10%", left: "7%", delay: "-5s" },
+          ].map((c) => (
+            <div key={c.sub} style={{ position: "absolute", top: c.top, left: c.left, right: c.right, bottom: c.bottom, background: "rgba(13,16,24,.88)", backdropFilter: "blur(20px)", border: "1px solid var(--border)", borderRadius: 12, padding: "1rem 1.3rem", animation: `float 7s ease-in-out infinite`, animationDelay: c.delay, minWidth: 155 }}>
+              <div style={{ fontSize: "1.3rem", marginBottom: ".4rem" }}>{c.icon}</div>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", color: "var(--accent)", letterSpacing: ".1em", marginBottom: ".2rem" }}>{c.label}</div>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".72rem", color: "var(--muted)" }}>{c.sub}</div>
+            </div>
+          ))}
+          <div style={{ position: "absolute", top: 0, right: 0, width: 55, height: 55, borderTop: "2px solid rgba(0,245,160,.2)", borderRight: "2px solid rgba(0,245,160,.2)" }} />
+          <div style={{ position: "absolute", bottom: 0, left: 0, width: 55, height: 55, borderBottom: "2px solid rgba(212,168,67,.2)", borderLeft: "2px solid rgba(212,168,67,.2)" }} />
         </div>
       </div>
     </section>
   );
-};
+}
 
-const ServiceCard = ({ service, theme }) => {
-  const [hovered, setHovered] = useState(false);
-
+/* ═══════════════════════════════════════════
+   TICKER
+═══════════════════════════════════════════ */
+function Ticker() {
+  const items = ["GigaZone WiFi Pro", "ifiMoney Tontine", "ifiChat Live", "Marketplace Crypto", "WiFi < 50 000 FCFA", "100% Légal ARCEP", "Finance Numérique", "Agriculture Tech", "Zinvié · Bénin · Monde"];
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: theme.cardBg,
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${hovered ? theme.borderHover : theme.border}`,
-        borderRadius: '24px',
-        padding: '40px',
-        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-        transform: hovered ? 'translateY(-8px)' : 'translateY(0)',
-        boxShadow: hovered ? `0 30px 60px ${service.color}15` : 'none',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Icon */}
-      <div style={{
-        width: '72px',
-        height: '72px',
-        borderRadius: '20px',
-        background: `linear-gradient(135deg, ${service.color}30, ${service.color}10)`,
-        border: `1px solid ${service.color}30`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '32px',
-        marginBottom: '28px',
-        transition: 'all 0.4s ease',
-        transform: hovered ? 'scale(1.1)' : 'scale(1)',
-      }}>
-        {service.icon}
-      </div>
-
-      {/* Content */}
-      <h3 style={{
-        fontFamily: "'Clash Display', sans-serif",
-        fontSize: '22px',
-        fontWeight: 700,
-        marginBottom: '14px',
-        color: theme.text,
-      }}>
-        {service.title}
-      </h3>
-
-      <p style={{
-        fontSize: '15px',
-        color: theme.textSecondary,
-        lineHeight: 1.8,
-        marginBottom: '28px',
-        flex: 1,
-      }}>
-        {service.description}
-      </p>
-
-      {/* Features Tags */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '10px',
-      }}>
-        {service.features.map((feature, i) => (
-          <span
-            key={i}
-            style={{
-              padding: '8px 16px',
-              background: `${service.color}15`,
-              borderRadius: '100px',
-              fontSize: '12px',
-              fontWeight: 500,
-              color: service.color,
-              letterSpacing: '0.02em',
-            }}
-          >
-            {feature}
+    <div style={{ background: "var(--green)", padding: ".9rem 0", overflow: "hidden", whiteSpace: "nowrap", borderTop: "1px solid rgba(0,245,160,.2)", borderBottom: "1px solid rgba(0,245,160,.2)" }}>
+      <div style={{ display: "inline-flex", gap: "3rem", animation: "ticker 30s linear infinite" }}>
+        {[...items, ...items].map((t, i) => (
+          <span key={i} style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.65rem,.75vw,.72rem)", letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(240,237,230,.88)", display: "flex", alignItems: "center", gap: "1.5rem" }}>
+            {t}<span style={{ color: "var(--gold2)", fontSize: ".4rem" }}>◆</span>
           </span>
         ))}
       </div>
     </div>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// STATS SECTION
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const StatsSection = ({ theme }) => {
-  const stats = [
-    { value: 500, suffix: '+', label: 'Clients satisfaits', icon: '👥' },
-    { value: 50, suffix: '+', label: 'Projets réalisés', icon: '✅' },
-    { value: 99, suffix: '%', label: 'Satisfaction', icon: '⭐' },
-    { value: 24, suffix: '/7', label: 'Support', icon: '🛡️' },
+/* ═══════════════════════════════════════════
+   PLATFORMS
+═══════════════════════════════════════════ */
+function Platforms() {
+  const isMobile = useIsMobile();
+  const platforms = [
+    {
+      icon: "📶", domain: "z.ifiaas.com", name: "GigaZone WiFi Pro",
+      badge: "🟢 En ligne", tagline: "Lancez votre WifiZone au Bénin",
+      color: "var(--accent)",
+      desc: "Transformez n'importe quel routeur en hotspot WiFi rentable. Système de tickets, parrainage intégré, 100% légal ARCEP Bénin. Installation gratuite par les techniciens IFIAAS. Démarrez avec moins de 50 000 FCFA et encaissez 100% de vos ventes.",
+      highlights: ["100% légal — autorisé ARCEP Bénin", "Installation gratuite par nos techniciens", "Vous gardez 100% de vos bénéfices", "Système de parrainage & commissions", "Disponible dans tout le Bénin"],
+      extra: { title: "Exemples de forfaits", items: [["1h Ultra (50Mbps)", "100 FCFA"], ["3h Ultra", "200 FCFA"], ["1 Jour Nav.", "200 FCFA"], ["7 Jours Nav.", "900 FCFA"], ["30 Jours Nav.", "3 000 FCFA"], ["VPN intégré", "inclus"]] },
+      url: "https://z.ifiaas.com"
+    },
+    {
+      icon: "🏦", domain: "money.ifiaas.com", name: "ifiMoney",
+      badge: "🟢 En ligne", tagline: "Tontine numérique sécurisée",
+      color: "var(--gold2)",
+      desc: "ifiMoney digitalise la tontine africaine. Gérez vos groupes d'épargne collective en ligne — cotisations automatisées, tours de paiement transparents, suivi en temps réel. La confiance de la tontine traditionnelle, avec la sécurité du numérique.",
+      highlights: ["Tontine 100% numérique & sécurisée", "Gestion de groupes d'épargne", "Suivi en temps réel", "Transparence totale", "Accessible partout, sur mobile"],
+      url: "https://money.ifiaas.com"
+    },
+    {
+      icon: "💬", domain: "chat.ifiaas.com", name: "ifiChat",
+      badge: "🟢 En ligne", tagline: "Chat Live intégré à Telegram",
+      color: "#7ecfff",
+      desc: "ifiChat est une interface de chat en temps réel connectée nativement à Telegram. Communiquez avec votre audience, gérez votre support client et animez votre communauté depuis une interface fluide et unifiée.",
+      highlights: ["Chat live en temps réel", "Intégration Telegram native", "Support client intégré", "Communauté connectée", "Accessible sur tous appareils"],
+      url: "https://chat.ifiaas.com"
+    }
   ];
 
-  return (
-    <section id="stats" style={{
-      padding: '120px 5%',
-      background: theme.bgSecondary,
-      position: 'relative',
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <AnimatedSection>
-          <div
-            style={{
-              padding: '60px 40px',
-              background: `linear-gradient(135deg, ${theme.accent}08, ${theme.accentAlt}05)`,
-              backdropFilter: 'blur(20px)',
-              border: `1px solid ${theme.border}`,
-              borderRadius: '24px',
-            }}
-          >
-            <div 
-              className="stats-grid"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '40px',
-              }}
-            >
-              {stats.map((stat, index) => (
-                <StatItem key={index} stat={stat} theme={theme} />
-              ))}
-            </div>
-          </div>
-        </AnimatedSection>
-      </div>
-
-      <style>{`
-        @media (max-width: 900px) {
-          .stats-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-        @media (max-width: 500px) {
-          .stats-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-};
-
-const StatItem = ({ stat, theme }) => {
-  const [ref, count] = useCountUp(stat.value, 2000);
+  const [active, setActive] = useState(0);
+  const p = platforms[active];
 
   return (
-    <div ref={ref} style={{ textAlign: 'center', padding: '20px 10px' }}>
-      <div style={{ fontSize: '36px', marginBottom: '16px' }}>
-        {stat.icon}
-      </div>
-      <div style={{
-        fontFamily: "'Clash Display', sans-serif",
-        fontSize: 'clamp(40px, 6vw, 56px)',
-        fontWeight: 700,
-        marginBottom: '12px',
-        letterSpacing: '-0.02em',
-        lineHeight: 1,
-      }}>
-        <GradientText theme={theme}>{count}{stat.suffix}</GradientText>
-      </div>
-      <p style={{
-        fontSize: '15px',
-        color: theme.textSecondary,
-        fontWeight: 500,
-      }}>
-        {stat.label}
-      </p>
-    </div>
-  );
-};
+    <section id="plateformes" style={{ padding: `var(--section-py) var(--px)`, background: "var(--surface)", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: -300, right: -300, width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(ellipse,rgba(13,110,63,.1) 0%,transparent 70%)", pointerEvents: "none" }} />
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// ROADMAP SECTION
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const RoadmapSection = ({ theme }) => {
-  const roadmap = [
-    {
-      year: '2024',
-      quarter: 'Q1-Q2',
-      title: 'Connexion',
-      items: ['Création IFIAAS', 'Lancement GigaZone', 'Déploiement Zinvié'],
-      status: 'completed',
-    },
-    {
-      year: '2024',
-      quarter: 'Q3-Q4',
-      title: 'Finance',
-      items: ['Lancement ifiMoney', 'Tontine digitale', 'Premiers utilisateurs'],
-      status: 'completed',
-    },
-    {
-      year: '2025',
-      quarter: 'Q1-Q2',
-      title: 'Services',
-      items: ['Services Numériques', 'Extension réseau', 'Partenariats B2B'],
-      status: 'current',
-    },
-    {
-      year: '2025',
-      quarter: 'Q3-Q4',
-      title: 'Expansion',
-      items: ['Investissements', 'ifiMarket beta', 'Agriculture & Impact'],
-      status: 'upcoming',
-    },
-  ];
-
-  const statusColors = {
-    completed: '#10b981',
-    current: theme.accent,
-    upcoming: theme.textMuted,
-  };
-
-  return (
-    <section id="roadmap" style={{
-      padding: '150px 5%',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        {/* Header */}
-        <AnimatedSection>
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <Badge icon="🗓️" theme={theme}>Roadmap</Badge>
-            <h2 style={{
-              fontFamily: "'Clash Display', sans-serif",
-              fontSize: 'clamp(36px, 5vw, 56px)',
-              fontWeight: 700,
-              marginTop: '30px',
-              letterSpacing: '-0.02em',
-            }}>
-              Notre <GradientText theme={theme}>trajectoire</GradientText>
-            </h2>
-          </div>
-        </AnimatedSection>
-
-        {/* Timeline Container */}
-        <div style={{ position: 'relative' }}>
-          {/* Connecting Line - Desktop */}
-          <div 
-            className="roadmap-line"
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '0',
-              right: '0',
-              height: '3px',
-              background: theme.border,
-              zIndex: 0,
-              borderRadius: '2px',
-            }}
-          >
-            <div style={{
-              width: '62.5%',
-              height: '100%',
-              background: theme.gradient,
-              borderRadius: '2px',
-            }} />
-          </div>
-
-          {/* Cards Grid */}
-          <div 
-            className="roadmap-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '24px',
-            }}
-          >
-            {roadmap.map((item, index) => (
-              <AnimatedSection key={index} delay={index * 150}>
-                <RoadmapCard item={item} theme={theme} statusColors={statusColors} />
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-
-        <style>{`
-          @media (max-width: 900px) {
-            .roadmap-grid {
-              grid-template-columns: repeat(2, 1fr) !important;
-              gap: 30px !important;
-            }
-            .roadmap-line {
-              display: none !important;
-            }
-          }
-          @media (max-width: 550px) {
-            .roadmap-grid {
-              grid-template-columns: 1fr !important;
-              max-width: 350px;
-              margin: 0 auto;
-            }
-          }
-        `}</style>
-      </div>
-    </section>
-  );
-};
-
-const RoadmapCard = ({ item, theme, statusColors }) => {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      {/* Status Dot */}
-      <div style={{
-        width: '20px',
-        height: '20px',
-        borderRadius: '50%',
-        background: item.status === 'current' ? theme.gradient : statusColors[item.status],
-        border: `4px solid ${theme.bg}`,
-        marginBottom: '24px',
-        boxShadow: item.status === 'current' ? theme.glow : `0 0 0 3px ${theme.bgSecondary}`,
-        transition: 'transform 0.3s ease',
-        transform: hovered ? 'scale(1.4)' : 'scale(1)',
-        position: 'relative',
-        zIndex: 2,
-        flexShrink: 0,
-      }} />
-
-      {/* Card */}
-      <div
-        style={{
-          width: '100%',
-          padding: '28px 24px',
-          background: theme.cardBg,
-          backdropFilter: 'blur(20px)',
-          border: `1px solid ${hovered ? theme.borderHover : theme.border}`,
-          borderRadius: '20px',
-          textAlign: 'center',
-          opacity: item.status === 'upcoming' ? 0.7 : 1,
-          transition: 'all 0.4s ease',
-          transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-          boxShadow: item.status === 'current' && hovered ? theme.glow : 'none',
-        }}
-      >
-        <p style={{
-          fontSize: '12px',
-          color: statusColors[item.status],
-          fontWeight: 600,
-          letterSpacing: '0.1em',
-          marginBottom: '8px',
-        }}>
-          {item.year} • {item.quarter}
-        </p>
-        <h4 style={{
-          fontFamily: "'Clash Display', sans-serif",
-          fontSize: '20px',
-          fontWeight: 700,
-          marginBottom: '16px',
-          color: theme.text,
-        }}>
-          {item.title}
-        </h4>
-        <ul style={{
-          listStyle: 'none',
-          padding: 0,
-          margin: 0,
-        }}>
-          {item.items.map((point, i) => (
-            <li key={i} style={{
-              fontSize: '13px',
-              color: theme.textSecondary,
-              marginBottom: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              justifyContent: 'center',
-            }}>
-              <span style={{ 
-                color: statusColors[item.status],
-                fontSize: '10px',
-              }}>
-                {item.status === 'completed' ? '✓' : item.status === 'current' ? '●' : '○'}
-              </span>
-              {point}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// TRUST SECTION
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const TrustSection = ({ theme }) => {
-  const features = [
-    { icon: '🔒', title: 'Sécurité', desc: 'Données protégées par les dernières technologies' },
-    { icon: '⚡', title: 'Rapidité', desc: 'Services livrés dans les meilleurs délais' },
-    { icon: '🎯', title: 'Précision', desc: 'Solutions adaptées à vos besoins spécifiques' },
-    { icon: '🤝', title: 'Confiance', desc: 'Partenariats durables et transparents' },
-    { icon: '💰', title: 'Accessibilité', desc: 'Tarifs compétitifs sans compromis qualité' },
-    { icon: '🌍', title: 'Local & Global', desc: 'Ancré au Bénin, connecté au monde' },
-  ];
-
-  return (
-    <section style={{
-      padding: '150px 5%',
-      background: theme.bgSecondary,
-      position: 'relative',
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <AnimatedSection>
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <Badge icon="✨" theme={theme}>Pourquoi nous choisir</Badge>
-            <h2 style={{
-              fontFamily: "'Clash Display', sans-serif",
-              fontSize: 'clamp(36px, 5vw, 56px)',
-              fontWeight: 700,
-              marginTop: '30px',
-              letterSpacing: '-0.02em',
-            }}>
-              La <GradientText theme={theme}>confiance</GradientText> avant tout
-            </h2>
-          </div>
-        </AnimatedSection>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '24px',
-        }}>
-          {features.map((feature, index) => (
-            <AnimatedSection key={index} delay={index * 80}>
-              <TrustCard feature={feature} theme={theme} />
-            </AnimatedSection>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const TrustCard = ({ feature, theme }) => {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        padding: '36px',
-        background: hovered ? `${theme.accent}08` : 'transparent',
-        border: `1px solid ${hovered ? theme.borderHover : theme.border}`,
-        borderRadius: '20px',
-        transition: 'all 0.4s ease',
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '20px',
-      }}
-    >
-      <div style={{
-        fontSize: '36px',
-        transition: 'transform 0.3s ease',
-        transform: hovered ? 'scale(1.2)' : 'scale(1)',
-      }}>
-        {feature.icon}
-      </div>
-      <div>
-        <h4 style={{
-          fontSize: '18px',
-          fontWeight: 600,
-          marginBottom: '8px',
-          color: theme.text,
-        }}>
-          {feature.title}
-        </h4>
-        <p style={{
-          fontSize: '14px',
-          color: theme.textSecondary,
-          lineHeight: 1.7,
-        }}>
-          {feature.desc}
+      <div className="rv" style={{ marginBottom: "clamp(2.5rem,5vw,4rem)" }}>
+        <Tag label="Plateformes" />
+        <SectionTitle style={{ marginBottom: "1rem" }}>Déjà <em style={{ fontStyle: "italic", color: "var(--gold2)" }}>en ligne</em></SectionTitle>
+        <p style={{ color: "var(--muted)", fontSize: "clamp(.85rem,1.1vw,.95rem)", lineHeight: 1.78, maxWidth: 520 }}>
+          Trois produits opérationnels — WiFi, épargne collective et communication. Sélectionnez une plateforme pour en savoir plus.
         </p>
       </div>
-    </div>
-  );
-};
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// CONTACT SECTION
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const ContactSection = ({ theme }) => {
-  return (
-    <section id="contact" style={{
-      padding: '150px 5%',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Background Glow */}
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '600px',
-        height: '600px',
-        background: `radial-gradient(circle, ${theme.accent}15 0%, transparent 60%)`,
-        filter: 'blur(80px)',
-      }} />
-
-      <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
-        <AnimatedSection>
-          <GlassCard 
-            theme={theme}
-            hover={false}
-            style={{
-              padding: '80px 60px',
-              textAlign: 'center',
-              background: `linear-gradient(135deg, ${theme.accent}10, ${theme.accentAlt}08)`,
-            }}
-          >
-            <Badge icon="📬" theme={theme}>Contact</Badge>
-
-            <h2 style={{
-              fontFamily: "'Clash Display', sans-serif",
-              fontSize: 'clamp(32px, 5vw, 48px)',
-              fontWeight: 700,
-              marginTop: '30px',
-              marginBottom: '20px',
-              letterSpacing: '-0.02em',
-            }}>
-              Prêt à démarrer votre <GradientText theme={theme}>projet</GradientText> ?
-            </h2>
-
-            <p style={{
-              fontSize: '17px',
-              color: theme.textSecondary,
-              maxWidth: '500px',
-              margin: '0 auto 40px',
-              lineHeight: 1.8,
-            }}>
-              Contactez-nous dès maintenant. Notre équipe est prête à vous accompagner 
-              dans tous vos projets digitaux et financiers.
-            </p>
-
-            {/* CTA Buttons */}
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              marginBottom: '50px',
-            }}>
-              <CTAButton primary theme={theme} href="https://wa.me/22967455462">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                WhatsApp
-              </CTAButton>
-              <CTAButton theme={theme} href="mailto:contact@ifiaas.com">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="4" width="20" height="16" rx="2"/>
-                  <path d="M22 6l-10 7L2 6"/>
-                </svg>
-                Email
-              </CTAButton>
-            </div>
-
-            {/* Contact Info */}
-            <div style={{
-              paddingTop: '40px',
-              borderTop: `1px solid ${theme.border}`,
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '60px',
-              flexWrap: 'wrap',
-            }}>
-              {[
-                { label: 'Téléphone', value: '+229 67 45 54 62' },
-                { label: 'Email', value: 'contact@ifiaas.com' },
-                { label: 'Localisation', value: 'Bénin, Afrique' },
-              ].map((info, i) => (
-                <div key={i}>
-                  <p style={{ 
-                    fontSize: '12px', 
-                    color: theme.textMuted, 
-                    marginBottom: '6px',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                  }}>
-                    {info.label}
-                  </p>
-                  <p style={{ 
-                    fontSize: '16px', 
-                    color: theme.text, 
-                    fontWeight: 600,
-                  }}>
-                    {info.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-        </AnimatedSection>
-      </div>
-    </section>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// FOOTER
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const Footer = ({ theme }) => {
-  const socials = [
-    { icon: 'twitter', path: 'M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z' },
-    { icon: 'instagram', path: 'M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01M6.5 2h11A4.5 4.5 0 0122 6.5v11a4.5 4.5 0 01-4.5 4.5h-11A4.5 4.5 0 012 17.5v-11A4.5 4.5 0 016.5 2z' },
-    { icon: 'linkedin', path: 'M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 2a2 2 0 110 4 2 2 0 010-4z' },
-  ];
-
-  return (
-    <footer style={{
-      padding: '60px 5%',
-      borderTop: `1px solid ${theme.border}`,
-      background: theme.bg,
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '24px',
-      }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/logo.png" alt="IFIAAS" style={{ height: '36px' }} />
-          <span style={{ 
-            fontFamily: "'Clash Display', sans-serif",
-            fontWeight: 700, 
-            fontSize: '18px',
-            color: theme.text,
-          }}>
-            IFIAAS
-          </span>
-        </div>
-
-        {/* Copyright */}
-        <p style={{ fontSize: '14px', color: theme.textMuted }}>
-          © 2025 IFIAAS. Tous droits réservés.
-        </p>
-
-        {/* Socials */}
-        <div style={{ display: 'flex', gap: '12px' }}>
-          {socials.map((social, i) => (
-            <a
-              key={i}
-              href="#"
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = theme.accent;
-                e.currentTarget.style.background = `${theme.accent}15`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = theme.border;
-                e.currentTarget.style.background = theme.cardBg;
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={theme.textSecondary} strokeWidth="2">
-                <path d={social.path} />
-              </svg>
-            </a>
-          ))}
-        </div>
-      </div>
-    </footer>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// WHATSAPP BUTTON
-// ─────────────────────────────────────────────────────────────────────────────────
-
-// ─────────────────────────────────────────────────────────────────────────────────
-// AI ASSISTANT - Assistant IA Éducatif
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const AIAssistant = ({ theme }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: "👋 Bonjour ! Je suis l'assistant IA d'IFIAAS. Je peux vous renseigner sur nos services, nos plateformes et notre vision. Comment puis-je vous aider ?",
-    },
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Base de connaissances IFIAAS
-  const knowledgeBase = {
-    ifiaas: "IFIAAS (Infrastructure Financière et Informatique pour l'Afrique et l'Autonomisation Sociale) est une holding digitale et financière panafricaine fondée en 2024. Notre mission est de bâtir l'infrastructure digitale et financière de l'Afrique à travers des solutions technologiques innovantes.",
-    
-    gigazone: "GigaZone est notre plateforme de WiFi public intelligent. Elle offre Internet haut débit, un portail captif et des services numériques. Actuellement déployée à Zinvié et ses environs au Bénin. 🌐 Visitez : https://z.ifiaas.com",
-    
-    ifimoney: "ifiMoney est notre plateforme de tontine digitale sécurisée. Elle permet aux communautés de gérer leur épargne collective de manière transparente et efficace. C'est une solution moderne pour l'épargne traditionnelle africaine. 💰 Visitez : https://money.ifiaas.com",
-    
-    services: "IFIAAS propose 5 services principaux :\n\n🌐 **Création & Hébergement Web** - Sites et applications\n🎨 **Conception Graphique** - Logos, affiches, identité visuelle\n💸 **Transfert Mobile Money** - MTN, Moov, Celtis Cash\n📡 **Technicien WifiZone** - Installation réseau\n🛒 **Commerce Général** - Import/Export",
-    
-    plateformes: "Notre écosystème comprend 6 plateformes :\n\n✅ **GigaZone** - WiFi public (Actif)\n✅ **ifiMoney** - Tontine digitale (Actif)\n🔜 **Services Numériques** - En développement\n🔜 **Investissements** - Crowdfunding\n🔜 **ifiMarket** - Marketplace\n🔜 **Agriculture & Impact** - AgriTech",
-    
-    contact: "Vous pouvez nous contacter via :\n\n📱 **WhatsApp** : +229 67 45 54 62\n📧 **Email** : contact@ifiaas.com\n📍 **Localisation** : Bénin, Afrique\n\nNotre équipe est disponible 7j/7 !",
-    
-    vision: "Notre vision est de transformer le paysage économique africain en construisant les ponts technologiques et financiers qui permettront à l'Afrique de réaliser son plein potentiel dans l'économie mondiale. Nous connectons, finançons, investissons et développons !",
-    
-    tontine: "La tontine est un système d'épargne collective traditionnel en Afrique. Avec ifiMoney, nous digitalisons ce concept pour le rendre plus sûr, transparent et accessible. Les membres peuvent épargner ensemble et bénéficier de fonds à tour de rôle.",
-    
-    wifi: "Notre service GigaZone offre :\n\n📶 Internet haut débit\n🔐 Portail captif sécurisé\n💻 Services numériques intégrés\n🏘️ Couverture locale (Zinvié)\n💰 Tarifs accessibles\n\nIdéal pour les particuliers et entreprises !",
-  };
-
-  const findAnswer = (question) => {
-    const q = question.toLowerCase();
-    
-    // Salutations
-    if (q.match(/bonjour|salut|hello|hi|coucou|bonsoir/)) {
-      return "Bonjour ! 😊 Ravi de vous accueillir. Je suis là pour répondre à toutes vos questions sur IFIAAS. Que souhaitez-vous savoir ?";
-    }
-    
-    // IFIAAS général
-    if (q.match(/ifiaas|c'est quoi|qui êtes|présent|entreprise|société|holding/)) {
-      return knowledgeBase.ifiaas;
-    }
-    
-    // GigaZone
-    if (q.match(/gigazone|giga|wifi|internet|connexion|réseau/)) {
-      return knowledgeBase.gigazone;
-    }
-    
-    // ifiMoney
-    if (q.match(/ifimoney|money|tontine|épargne|économ/)) {
-      return knowledgeBase.ifimoney;
-    }
-    
-    // Tontine spécifique
-    if (q.match(/tontine|cotisation|épargne collective/)) {
-      return knowledgeBase.tontine;
-    }
-    
-    // Services
-    if (q.match(/service|offre|propose|fait|activité/)) {
-      return knowledgeBase.services;
-    }
-    
-    // Plateformes
-    if (q.match(/plateforme|écosystème|produit|solution/)) {
-      return knowledgeBase.plateformes;
-    }
-    
-    // Contact
-    if (q.match(/contact|joindre|téléphone|whatsapp|email|adresse|où/)) {
-      return knowledgeBase.contact;
-    }
-    
-    // Vision/Mission
-    if (q.match(/vision|mission|objectif|but|pourquoi|valeur/)) {
-      return knowledgeBase.vision;
-    }
-    
-    // WiFi détaillé
-    if (q.match(/wifi|haut débit|portail|zinvié/)) {
-      return knowledgeBase.wifi;
-    }
-    
-    // Prix/Tarifs
-    if (q.match(/prix|tarif|coût|combien|gratuit|payer/)) {
-      return "Pour connaître nos tarifs détaillés, je vous invite à nous contacter directement :\n\n📱 WhatsApp : +229 67 45 54 62\n📧 Email : contact@ifiaas.com\n\nNos équipes vous feront un devis personnalisé selon vos besoins !";
-    }
-    
-    // Merci
-    if (q.match(/merci|thanks|super|génial|parfait/)) {
-      return "Avec plaisir ! 😊 N'hésitez pas si vous avez d'autres questions. IFIAAS est là pour vous accompagner dans votre transformation digitale ! 🚀";
-    }
-    
-    // Au revoir
-    if (q.match(/bye|revoir|bientôt|ciao/)) {
-      return "Au revoir ! 👋 Merci de votre intérêt pour IFIAAS. N'hésitez pas à revenir si vous avez d'autres questions. À bientôt !";
-    }
-    
-    // Réponse par défaut
-    return "Je ne suis pas sûr de comprendre votre question. 🤔\n\nVoici ce que je peux vous expliquer :\n\n• **IFIAAS** - Notre holding\n• **GigaZone** - WiFi public\n• **ifiMoney** - Tontine digitale\n• **Services** - Nos prestations\n• **Contact** - Nous joindre\n\nPouvez-vous reformuler ou choisir un sujet ?";
-  };
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-
-    const userMessage = { role: 'user', content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsTyping(true);
-
-    // Simuler un délai de réponse
-    setTimeout(() => {
-      const answer = findAnswer(input);
-      setMessages((prev) => [...prev, { role: 'assistant', content: answer }]);
-      setIsTyping(false);
-    }, 800 + Math.random() * 700);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const quickQuestions = [
-    "C'est quoi IFIAAS ?",
-    "Parlez-moi de GigaZone",
-    "Comment fonctionne ifiMoney ?",
-    "Vos services ?",
-    "Comment vous contacter ?",
-  ];
-
-  return (
-    <>
-      {/* Chat Window */}
-      <div style={{
-        position: 'fixed',
-        bottom: '170px',
-        right: '30px',
-        width: '380px',
-        maxWidth: 'calc(100vw - 40px)',
-        height: '500px',
-        maxHeight: 'calc(100vh - 280px)',
-        background: theme.bg,
-        border: `1px solid ${theme.border}`,
-        borderRadius: '24px',
-        boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-        display: isOpen ? 'flex' : 'none',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        zIndex: 1001,
-      }}>
-        {/* Header */}
-        <div style={{
-          padding: '20px',
-          background: theme.bgSecondary,
-          borderBottom: `1px solid ${theme.border}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '12px',
-              background: theme.gradient,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '20px',
-            }}>
-              🤖
-            </div>
-            <div>
-              <h4 style={{ 
-                fontSize: '15px', 
-                fontWeight: 600, 
-                color: theme.text,
-                marginBottom: '2px',
-              }}>
-                Assistant IFIAAS
-              </h4>
-              <p style={{ fontSize: '12px', color: theme.textMuted }}>
-                <span style={{ 
-                  display: 'inline-block',
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: '#10b981',
-                  marginRight: '6px',
-                }} />
-                En ligne
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              background: 'transparent',
-              border: `1px solid ${theme.border}`,
-              color: theme.textMuted,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '18px',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            ×
+      {/* Tabs */}
+      <div className="rv plat-tabs" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1px", background: "var(--border)", marginBottom: "1px" }}>
+        {platforms.map((pl, i) => (
+          <button key={i} onClick={() => setActive(i)} className="ptab"
+            style={{ padding: "clamp(.9rem,2vw,1.4rem) 1rem", background: active === i ? "rgba(0,245,160,.05)" : "var(--surface2)", borderBottom: active === i ? `2px solid ${pl.color}` : "2px solid transparent", color: active === i ? pl.color : "var(--muted)", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.6rem,.8vw,.72rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center", gap: ".5rem" }}>
+            <span style={{ fontSize: isMobile ? "1rem" : "1.1rem" }}>{pl.icon}</span>
+            <span>{isMobile ? pl.name.split(" ")[0] : pl.name}</span>
           </button>
+        ))}
+      </div>
+
+      {/* Detail */}
+      <div className="rv plat-detail" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1px", background: "var(--border)" }}>
+        {/* Left: description */}
+        <div style={{ background: "var(--surface)", padding: "clamp(2rem,4vw,3.5rem)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "clamp(2rem,4vw,3rem)" }}>{p.icon}</span>
+            <div>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.58rem,.7vw,.65rem)", color: p.color, letterSpacing: ".15em", textTransform: "uppercase", marginBottom: ".3rem" }}>{p.badge} · {p.domain}</div>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.5rem,2.5vw,2rem)", fontWeight: 600 }}>{p.name}</div>
+            </div>
+          </div>
+          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1rem,1.5vw,1.2rem)", fontStyle: "italic", color: p.color, marginBottom: "1.2rem" }}>{p.tagline}</div>
+          <p style={{ fontSize: "clamp(.82rem,1vw,.9rem)", color: "var(--muted)", lineHeight: 1.88, marginBottom: "2rem" }}>{p.desc}</p>
+          <a href={p.url} target="_blank" rel="noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: ".6rem", background: p.color, color: "#000", padding: ".8rem 1.8rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.68rem,.8vw,.75rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", clipPath: "polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)", transition: "filter .3s, transform .2s" }}
+            onMouseEnter={e => { e.currentTarget.style.filter = "brightness(1.15)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.filter = "brightness(1)"; e.currentTarget.style.transform = "translateY(0)"; }}>
+            Visiter ↗
+          </a>
         </div>
 
-        {/* Messages */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-        }}>
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              style={{
-                display: 'flex',
-                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              }}
-            >
-              <div style={{
-                maxWidth: '85%',
-                padding: '12px 16px',
-                borderRadius: msg.role === 'user' 
-                  ? '18px 18px 4px 18px' 
-                  : '18px 18px 18px 4px',
-                background: msg.role === 'user' 
-                  ? theme.gradient 
-                  : theme.bgSecondary,
-                color: theme.text,
-                fontSize: '14px',
-                lineHeight: 1.6,
-                whiteSpace: 'pre-wrap',
-              }}>
-                {msg.content}
-              </div>
+        {/* Right: highlights + forfaits */}
+        <div style={{ background: "var(--surface2)", padding: "clamp(2rem,4vw,3.5rem)" }}>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--muted)", marginBottom: "1.2rem" }}>Points clés</div>
+          {p.highlights.map((h, i) => (
+            <div key={i} className="hi" style={{ padding: ".8rem 0", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "1rem", borderRadius: 4, paddingLeft: 0 }}>
+              <span style={{ color: p.color, minWidth: 18, fontSize: ".95rem" }}>✓</span>
+              <span style={{ fontSize: "clamp(.78rem,1vw,.87rem)" }}>{h}</span>
             </div>
           ))}
-          
-          {/* Typing indicator */}
-          {isTyping && (
-            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-              <div style={{
-                padding: '12px 16px',
-                borderRadius: '18px 18px 18px 4px',
-                background: theme.bgSecondary,
-                display: 'flex',
-                gap: '4px',
-              }}>
-                <span style={{ 
-                  width: '8px', 
-                  height: '8px', 
-                  borderRadius: '50%', 
-                  background: theme.textMuted,
-                  animation: 'bounce 1.4s ease-in-out infinite',
-                }} />
-                <span style={{ 
-                  width: '8px', 
-                  height: '8px', 
-                  borderRadius: '50%', 
-                  background: theme.textMuted,
-                  animation: 'bounce 1.4s ease-in-out 0.2s infinite',
-                }} />
-                <span style={{ 
-                  width: '8px', 
-                  height: '8px', 
-                  borderRadius: '50%', 
-                  background: theme.textMuted,
-                  animation: 'bounce 1.4s ease-in-out 0.4s infinite',
-                }} />
+          {p.extra && (
+            <div style={{ marginTop: "1.8rem" }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--muted)", marginBottom: "1rem" }}>{p.extra.title}</div>
+              <div className="price-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: ".5rem" }}>
+                {p.extra.items.map(([d, v]) => (
+                  <div key={d} style={{ background: "rgba(0,245,160,.05)", border: "1px solid rgba(0,245,160,.1)", padding: ".65rem .9rem", borderRadius: 4 }}>
+                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".58rem", color: "var(--muted)", marginBottom: ".2rem" }}>{d}</div>
+                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".9rem", color: "var(--accent)", fontWeight: 700 }}>{v}</div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
-          
-          <div ref={messagesEndRef} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   DOMAINS
+═══════════════════════════════════════════ */
+function Domains() {
+  const domains = [
+    { num: "01", title: "💻 Informatique", desc: "Développement fullstack, architecture système, applications web & mobile. Des solutions robustes conçues pour répondre aux besoins concrets des entreprises africaines et internationales." },
+    { num: "02", title: "📊 Finance & Épargne", desc: "Finance digitale et tontine numérique. ifiMoney modernise l'épargne collective africaine, pendant qu'une marketplace crypto se prépare en coulisses." },
+    { num: "03", title: "🌱 Agriculture Tech", desc: "Digitalisation des pratiques agricoles, outils de monitoring et de gestion. La technologie au service de la productivité agricole africaine." },
+  ];
+
+  return (
+    <section id="domaines" style={{ padding: `var(--section-py) var(--px)`, background: "var(--bg)" }}>
+      <div className="domains-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(2rem,6vw,6rem)", alignItems: "center" }}>
+        <div>
+          <div className="rv"><Tag label="Domaines d'expertise" /></div>
+          <SectionTitle className="rv" style={{ marginBottom: "clamp(2rem,4vw,3rem)" }}>Trois piliers,<br /><em style={{ fontStyle: "italic", color: "var(--gold2)" }}>une vision</em></SectionTitle>
+          {domains.map((d, i) => (
+            <div key={d.num} className={`di rv d${i + 1}`} style={{ padding: "1.8rem 0", borderBottom: "1px solid var(--border)", borderLeft: "2px solid transparent", paddingLeft: 0, display: "flex", gap: "1.2rem", marginLeft: -2 }}>
+              <div>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".65rem", color: "var(--accent)", display: "block", marginBottom: ".5rem" }}>{d.num}</span>
+                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.25rem,2vw,1.5rem)", fontWeight: 600, marginBottom: ".5rem" }}>{d.title}</div>
+                <div style={{ fontSize: "clamp(.8rem,1vw,.87rem)", color: "var(--muted)", lineHeight: 1.78 }}>{d.desc}</div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Quick Questions */}
-        {messages.length <= 2 && (
-          <div style={{
-            padding: '0 20px 12px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px',
-          }}>
-            {quickQuestions.map((q, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setInput(q);
-                  setTimeout(() => handleSend(), 100);
-                }}
-                style={{
-                  padding: '8px 12px',
-                  background: theme.bgSecondary,
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '100px',
-                  color: theme.textSecondary,
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.borderColor = theme.accent;
-                  e.target.style.color = theme.text;
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.borderColor = theme.border;
-                  e.target.style.color = theme.textSecondary;
-                }}
-              >
-                {q}
-              </button>
+        {/* Visual — hidden on mobile */}
+        <div className="domain-vis rv" style={{ position: "relative", height: "min(500px,45vw)" }}>
+          <div style={{ position: "absolute", inset: 0, border: "1px solid var(--border)", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 40%,rgba(13,110,63,.18) 0%,transparent 70%)" }} />
+            <div style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(5rem,10vw,10rem)", color: "rgba(0,245,160,.07)", lineHeight: 1, userSelect: "none" }}>IFI</div>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".28em", textTransform: "uppercase", color: "rgba(240,237,230,.2)", marginTop: "1rem" }}>Info · Finance · Agriculture</div>
+            </div>
+            {[[160, 20], [260, 35], [360, 50]].map(([s, d]) => (
+              <div key={s} style={{ position: "absolute", top: "50%", left: "50%", width: s, height: s, borderRadius: "50%", border: "1px solid rgba(0,245,160,.05)", animation: `spinC ${d}s linear infinite`, marginTop: -s / 2, marginLeft: -s / 2 }} />
+            ))}
+            <span style={{ position: "absolute", fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".18em", color: "rgba(240,237,230,.18)", top: "1.5rem", right: "1.5rem" }}>IFIAAS · 2026</span>
+            <span style={{ position: "absolute", fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".18em", color: "rgba(240,237,230,.18)", bottom: "1.5rem", left: "1.5rem" }}>Zinvié · Bénin</span>
+          </div>
+          <Corner pos="tr" />
+          <Corner pos="bl" color="var(--gold)" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   PROJECTS
+═══════════════════════════════════════════ */
+function Projects() {
+  const projects = [
+    { badge: "En développement", bc: "var(--accent)", bl: "var(--accent)", bg: "rgba(0,245,160,.03)", featured: true, name: "Marketplace Crypto", desc: "Une marketplace dédiée à la monnaie virtuelle. Achat, vente et échange d'actifs numériques dans un environnement sécurisé, conçue pour l'adoption de masse sur le marché africain et international.", tags: ["Blockchain", "Crypto", "DeFi", "Web3"] },
+    { badge: "Bientôt", bc: "var(--gold2)", bl: "var(--gold)", bg: "rgba(212,168,67,.03)", name: "WiFi Zone Manager Pro", desc: "L'évolution de GigaZone : analytics temps réel, facturation automatisée, gestion multi-sites. Pour scaler votre business WiFi.", tags: ["IoT", "SaaS", "Analytics"] },
+    { badge: "À venir", bc: "var(--muted)", bl: "transparent", bg: "var(--surface)", name: "Et bien plus…", desc: "L'écosystème IFIAAS est en expansion permanente. Nouveaux outils, nouvelles opportunités.", tags: ["Innovation", "???"] },
+  ];
+
+  return (
+    <section id="projets" style={{ padding: `var(--section-py) var(--px)`, background: "var(--surface)" }}>
+      <div className="rv" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "clamp(2.5rem,5vw,4.5rem)", flexWrap: "wrap", gap: "1.5rem" }}>
+        <div><Tag label="Roadmap" /><SectionTitle>Projets à <em style={{ fontStyle: "italic", color: "var(--gold2)" }}>venir</em></SectionTitle></div>
+        <p style={{ color: "var(--muted)", fontSize: ".85rem", maxWidth: 240, lineHeight: 1.7 }}>L'écosystème IFIAAS grandit sans cesse.</p>
+      </div>
+
+      <div className="rv proj-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "1px", background: "var(--border)" }}>
+        {/* Featured */}
+        <div className="pj" style={{ background: projects[0].bg, padding: "clamp(2rem,4vw,3rem)", borderLeft: `2px solid ${projects[0].bl}` }}>
+          <div style={{ display: "inline-block", fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".15em", textTransform: "uppercase", padding: ".3rem .9rem", border: `1px solid ${projects[0].bc}`, color: projects[0].bc, marginBottom: "1.3rem" }}>{projects[0].badge}</div>
+          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.5rem,2.5vw,2rem)", fontWeight: 600, marginBottom: ".9rem" }}>{projects[0].name}</div>
+          <p style={{ fontSize: "clamp(.82rem,1vw,.88rem)", color: "var(--muted)", lineHeight: 1.78, marginBottom: "1.8rem" }}>{projects[0].desc}</p>
+          <div style={{ display: "flex", gap: ".4rem", flexWrap: "wrap" }}>{projects[0].tags.map(t => <span key={t} style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", padding: ".25rem .7rem", background: "rgba(240,237,230,.04)", color: "var(--muted)" }}>{t}</span>)}</div>
+        </div>
+
+        {/* Others */}
+        <div className="proj-inner" style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1px", background: "var(--border)" }}>
+          {projects.slice(1).map((p) => (
+            <div key={p.name} className="pj" style={{ background: p.bg, padding: "clamp(1.5rem,3vw,2.5rem)", borderLeft: `2px solid ${p.bl}` }}>
+              <div style={{ display: "inline-block", fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".15em", textTransform: "uppercase", padding: ".3rem .9rem", border: `1px solid ${p.bc}`, color: p.bc, marginBottom: "1rem" }}>{p.badge}</div>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.3rem,2vw,1.6rem)", fontWeight: 600, marginBottom: ".7rem" }}>{p.name}</div>
+              <p style={{ fontSize: "clamp(.78rem,.95vw,.85rem)", color: "var(--muted)", lineHeight: 1.75, marginBottom: "1.2rem" }}>{p.desc}</p>
+              <div style={{ display: "flex", gap: ".4rem", flexWrap: "wrap" }}>{p.tags.map(t => <span key={t} style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".58rem", padding: ".22rem .65rem", background: "rgba(240,237,230,.04)", color: "var(--muted)" }}>{t}</span>)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   FOUNDER
+═══════════════════════════════════════════ */
+function Founder() {
+  const skills = ["Développement Fullstack", "Conception Graphique", "Finance Digitale", "Agriculture Tech", "UI/UX Design", "Entrepreneuriat", "WiFi & Réseaux", "Architecture Système"];
+  const contacts = [
+    ["📱", "WhatsApp", "+229 67 45 54 62", "https://wa.me/22967455462"],
+    ["📺", "YouTube", "@ifiaas", "https://youtube.com/@ifiaas"],
+    ["✉️", "Email", "contact@ifiaas.com", "mailto:contact@ifiaas.com"],
+    ["📍", "Adresse", "Zinvié, Bénin", null],
+  ];
+
+  return (
+    <section id="fondateur" style={{ padding: `var(--section-py) var(--px)`, background: "var(--bg)", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", bottom: -200, right: -200, width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(ellipse,rgba(212,168,67,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
+
+      <div className="founder-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "clamp(2rem,6vw,6rem)", alignItems: "center" }}>
+        {/* Avatar */}
+        <div className="rv" style={{ position: "relative" }}>
+          <div style={{ width: "100%", aspectRatio: "3/4", background: "var(--surface2)", border: "1px solid var(--border)", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 80% at 40% 60%,rgba(13,110,63,.18) 0%,transparent 70%)" }} />
+            <div style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(4rem,10vw,7rem)", color: "rgba(0,245,160,.12)", lineHeight: 1 }}>AS</div>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(240,237,230,.2)", marginTop: "1rem" }}>Armel Sangan</div>
+            </div>
+            <div style={{ position: "absolute", left: 0, right: 0, height: 1, background: "linear-gradient(90deg,transparent,rgba(0,245,160,.2),transparent)", animation: "scanline 4s linear infinite" }} />
+          </div>
+          <div style={{ position: "absolute", bottom: "2rem", left: "50%", transform: "translateX(-50%)", background: "rgba(6,8,13,.93)", backdropFilter: "blur(20px)", border: "1px solid var(--border)", padding: ".75rem 1.4rem", whiteSpace: "nowrap", textAlign: "center" }}>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", color: "var(--accent)", letterSpacing: ".15em", textTransform: "uppercase" }}>Promoteur & CEO</div>
+            <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "1.05rem", fontWeight: 600, marginTop: ".2rem" }}>IFIAAS</div>
+          </div>
+          <Corner pos="tr" size={48} />
+          <Corner pos="bl" color="var(--gold)" size={48} />
+        </div>
+
+        {/* Content */}
+        <div>
+          <div className="rv"><Tag label="Fondateur" /></div>
+          <h2 className="rv" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(2.2rem,4vw,4rem)", fontWeight: 600, lineHeight: 1.05, marginBottom: ".5rem" }}>
+            Armel<br /><em style={{ fontStyle: "italic", color: "var(--gold2)" }}>SANGAN</em>
+          </h2>
+          <div className="rv" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.62rem,.8vw,.72rem)", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent)", marginBottom: "1.8rem" }}>
+            Développeur · Designer · Entrepreneur
+          </div>
+          <p className="rv" style={{ fontSize: "clamp(.85rem,1.1vw,.95rem)", color: "var(--muted)", lineHeight: 1.88, marginBottom: "2rem", maxWidth: 500 }}>
+            Armel SANGAN est le promoteur et fondateur d'IFIAAS. Développeur fullstack et designer graphique passionné, il a conçu GigaZone WiFi Pro, ifiMoney et ifiChat — trois produits déjà actifs au Bénin. Sa mission : bâtir l'infrastructure numérique africaine, un outil concret à la fois.
+          </p>
+
+          <div className="rv" style={{ display: "flex", flexWrap: "wrap", gap: ".45rem", marginBottom: "2rem" }}>
+            {skills.map(s => <span key={s} className="sk" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.58rem,.7vw,.65rem)", letterSpacing: ".07em", textTransform: "uppercase", padding: ".38rem .9rem", border: "1px solid var(--border)", color: "var(--muted)" }}>{s}</span>)}
+          </div>
+
+          {/* Contacts card */}
+          <div className="rv" style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "clamp(1rem,2.5vw,1.5rem) clamp(1.2rem,3vw,2rem)", marginBottom: "1.8rem" }}>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--muted)", marginBottom: "1rem" }}>Coordonnées</div>
+            {contacts.map(([icon, label, val, href]) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: ".9rem", marginBottom: ".55rem", flexWrap: "wrap" }}>
+                <span style={{ fontSize: ".88rem", minWidth: 18 }}>{icon}</span>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", color: "var(--muted)", minWidth: 65 }}>{label}</span>
+                {href
+                  ? <a href={href} target="_blank" rel="noreferrer" className="fl" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.7rem,.85vw,.78rem)", color: "var(--accent)" }}>{val}</a>
+                  : <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.7rem,.85vw,.78rem)", color: "var(--white)" }}>{val}</span>}
+              </div>
             ))}
           </div>
-        )}
 
-        {/* Input */}
-        <div style={{
-          padding: '16px 20px',
-          borderTop: `1px solid ${theme.border}`,
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'center',
-        }}>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Posez votre question..."
-            style={{
-              flex: 1,
-              padding: '12px 16px',
-              background: theme.bgSecondary,
-              border: `1px solid ${theme.border}`,
-              borderRadius: '12px',
-              color: theme.text,
-              fontSize: '14px',
-              outline: 'none',
-              transition: 'border-color 0.2s ease',
-            }}
-            onFocus={(e) => e.target.style.borderColor = theme.accent}
-            onBlur={(e) => e.target.style.borderColor = theme.border}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim()}
-            style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: input.trim() ? theme.gradient : theme.bgSecondary,
-              border: 'none',
-              color: '#fff',
-              cursor: input.trim() ? 'pointer' : 'not-allowed',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease',
-              opacity: input.trim() ? 1 : 0.5,
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-          </button>
+          <div className="rv founder-contacts" style={{ display: "flex", gap: ".9rem", flexWrap: "wrap" }}>
+            {[["📱 WhatsApp", "https://wa.me/22967455462", "#25d366", "#000"], ["▶ YouTube", "https://youtube.com/@ifiaas", "#f00", "#fff"]].map(([label, url, bg, color]) => (
+              <a key={label} href={url} target="_blank" rel="noreferrer" className="ctab"
+                style={{ display: "flex", alignItems: "center", gap: ".6rem", background: bg, color, padding: ".85rem 1.6rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.65rem,.8vw,.72rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase" }}>
+                {label}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          position: 'fixed',
-          bottom: '100px',
-          right: '30px',
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          background: isOpen ? theme.bgSecondary : theme.gradient,
-          border: isOpen ? `1px solid ${theme.border}` : 'none',
-          boxShadow: isOpen ? 'none' : theme.glow,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '24px',
-          transition: 'all 0.3s ease',
-          zIndex: 1000,
-        }}
-      >
-        {isOpen ? '✕' : '🤖'}
-      </button>
-
-      <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); }
-          30% { transform: translateY(-4px); }
-        }
-      `}</style>
-    </>
+    </section>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// WHATSAPP BUTTON
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const WhatsAppButton = ({ theme }) => {
-  const [hovered, setHovered] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowTooltip(true), 3000);
-    const hide = setTimeout(() => setShowTooltip(false), 8000);
-    return () => { clearTimeout(timer); clearTimeout(hide); };
-  }, []);
-
+/* ═══════════════════════════════════════════
+   CTA
+═══════════════════════════════════════════ */
+function CTA() {
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '30px',
-      right: '30px',
-      zIndex: 999,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-    }}>
-      {/* Tooltip */}
-      <div style={{
-        padding: '12px 18px',
-        background: theme.cardBg,
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${theme.border}`,
-        borderRadius: '14px',
-        opacity: showTooltip || hovered ? 1 : 0,
-        transform: showTooltip || hovered ? 'translateX(0)' : 'translateX(20px)',
-        transition: 'all 0.4s ease',
-        pointerEvents: 'none',
-      }}>
-        <p style={{ fontSize: '14px', color: theme.text, margin: 0, whiteSpace: 'nowrap' }}>
-          💬 Besoin d'aide ?
-        </p>
+    <div style={{ background: "var(--green)", padding: `clamp(4rem,8vw,7rem) var(--px)`, textAlign: "center", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", pointerEvents: "none" }}>
+        <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(8rem,20vw,22rem)", color: "rgba(255,255,255,.04)", whiteSpace: "nowrap", lineHeight: 1 }}>IFIAAS</span>
       </div>
-
-      {/* Button */}
-      <a
-        href="https://wa.me/22967455462?text=Bonjour%20IFIAAS%2C%20je%20souhaite%20avoir%20plus%20d%27informations."
-        target="_blank"
-        rel="noopener noreferrer"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          background: '#25D366',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: hovered 
-            ? '0 10px 40px rgba(37, 211, 102, 0.5)' 
-            : '0 5px 25px rgba(37, 211, 102, 0.3)',
-          transform: hovered ? 'scale(1.1)' : 'scale(1)',
-          transition: 'all 0.3s ease',
-        }}
-      >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-      </a>
+      <div style={{ position: "relative", zIndex: 2 }}>
+        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.6rem,.75vw,.68rem)", letterSpacing: ".25em", textTransform: "uppercase", color: "rgba(240,237,230,.6)", marginBottom: "1.3rem" }}>Collaboration · Partenariat</div>
+        <SectionTitle style={{ marginBottom: "1.1rem" }}>Prêt à construire<br /><em style={{ fontStyle: "italic", color: "var(--gold2)" }}>ensemble ?</em></SectionTitle>
+        <p style={{ color: "rgba(240,237,230,.65)", fontSize: "clamp(.88rem,1.1vw,1rem)", marginBottom: "2.5rem" }}>Un projet, une idée, un besoin ? Armel est disponible sur WhatsApp.</p>
+        <div className="cta-btns" style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <a href="https://wa.me/22967455462" target="_blank" rel="noreferrer" className="ctab"
+            style={{ background: "#000", color: "var(--accent)", padding: ".95rem 2.3rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.75rem,.9vw,.82rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)" }}>
+            Contacter Armel
+          </a>
+          <a href="https://youtube.com/@ifiaas" target="_blank" rel="noreferrer" className="ctab"
+            style={{ background: "transparent", color: "var(--white)", padding: ".95rem 2.3rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.75rem,.9vw,.82rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", border: "1px solid rgba(240,237,230,.3)", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)" }}>
+            Notre YouTube
+          </a>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// SCROLL TO TOP
-// ─────────────────────────────────────────────────────────────────────────────────
-
-const ScrollToTop = ({ theme }) => {
-  const [visible, setVisible] = useState(false);
-  const [hovered, setHovered] = useState(false);
-
-  useEffect(() => {
-    const toggle = () => setVisible(window.scrollY > 500);
-    window.addEventListener('scroll', toggle, { passive: true });
-    return () => window.removeEventListener('scroll', toggle);
-  }, []);
-
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+function Footer() {
   return (
-    <button
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        position: 'fixed',
-        bottom: '170px',
-        right: '38px',
-        zIndex: 998,
-        width: '46px',
-        height: '46px',
-        borderRadius: '50%',
-        background: hovered ? `${theme.accent}20` : theme.cardBg,
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${hovered ? theme.accent : theme.border}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        opacity: visible ? 1 : 0,
-        transform: visible 
-          ? (hovered ? 'translateY(-4px)' : 'translateY(0)') 
-          : 'translateY(20px)',
-        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-        pointerEvents: visible ? 'auto' : 'none',
-      }}
-    >
-      <svg 
-        width="18" 
-        height="18" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke={hovered ? theme.accent : theme.text} 
-        strokeWidth="2"
-        style={{ transition: 'stroke 0.3s ease' }}
-      >
-        <path d="M18 15l-6-6-6 6"/>
-      </svg>
-    </button>
+    <footer style={{ background: "var(--bg)", padding: `clamp(3rem,6vw,4rem) var(--px) clamp(1.5rem,3vw,2rem)`, borderTop: "1px solid var(--border)" }}>
+      <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "clamp(1.5rem,4vw,4rem)", marginBottom: "clamp(2rem,4vw,4rem)" }}>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(1rem,1.5vw,1.3rem)", fontWeight: 700, color: "var(--accent)", letterSpacing: ".2em", marginBottom: "1rem" }}>IFIAAS</div>
+          <p style={{ fontSize: "clamp(.78rem,1vw,.87rem)", color: "var(--muted)", lineHeight: 1.78, maxWidth: 300, marginBottom: "1.2rem" }}>Informatique · Finance · Agriculture. Innovation numérique depuis Zinvié, Bénin.</p>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", color: "rgba(240,237,230,.2)", letterSpacing: ".08em" }}>contact@ifiaas.com</div>
+        </div>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", letterSpacing: ".2em", textTransform: "uppercase", color: "rgba(240,237,230,.22)", marginBottom: "1.3rem" }}>Plateformes</div>
+          {[["📶 GigaZone WiFi", "https://z.ifiaas.com"], ["🏦 ifiMoney", "https://money.ifiaas.com"], ["💬 ifiChat", "https://chat.ifiaas.com"]].map(([l, u]) => (
+            <a key={l} href={u} target="_blank" rel="noreferrer" className="fl" style={{ fontSize: "clamp(.78rem,1vw,.87rem)", color: "var(--muted)", marginBottom: ".75rem" }}>{l}</a>
+          ))}
+        </div>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", letterSpacing: ".2em", textTransform: "uppercase", color: "rgba(240,237,230,.22)", marginBottom: "1.3rem" }}>Contact</div>
+          {[["📱 WhatsApp", "https://wa.me/22967455462"], ["▶ YouTube @ifiaas", "https://youtube.com/@ifiaas"], ["✉️ contact@ifiaas.com", "mailto:contact@ifiaas.com"]].map(([l, u]) => (
+            <a key={l} href={u} target="_blank" rel="noreferrer" className="fl" style={{ fontSize: "clamp(.75rem,.95vw,.85rem)", color: "var(--muted)", marginBottom: ".75rem" }}>{l}</a>
+          ))}
+          <div style={{ fontSize: "clamp(.75rem,.95vw,.85rem)", color: "var(--muted)", marginTop: ".3rem" }}>📍 Zinvié, Bénin</div>
+        </div>
+      </div>
+      <div style={{ paddingTop: "1.8rem", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+        <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.58rem,.72vw,.68rem)", color: "rgba(240,237,230,.18)" }}>© 2026 IFIAAS · Armel SANGAN</span>
+        <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.58rem,.72vw,.68rem)", color: "rgba(240,237,230,.18)" }}>ifiaas.com · Bénin 🇧🇯</span>
+      </div>
+    </footer>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// APP PRINCIPAL
-// ─────────────────────────────────────────────────────────────────────────────────
-
-export default function IFIAASV3() {
-  const [currentTheme, setCurrentTheme] = useState('light');
-  const [isLoading, setIsLoading] = useState(true);
-  const theme = themes[currentTheme];
-
-  useEffect(() => {
-    const saved = localStorage.getItem('ifiaas-theme-v3');
-    if (saved && themes[saved]) setCurrentTheme(saved);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('ifiaas-theme-v3', currentTheme);
-  }, [currentTheme]);
-
+/* ═══════════════════════════════════════════
+   APP
+═══════════════════════════════════════════ */
+export default function App() {
+  useReveal();
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: theme.bg,
-      color: theme.text,
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      transition: 'background 0.5s ease, color 0.5s ease',
-    }}>
-      {/* Fonts */}
-      <link 
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" 
-        rel="stylesheet" 
-      />
-      <link
-        href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap"
-        rel="stylesheet"
-      />
-
-      {/* Global Styles */}
-      <style>{`
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { 
-          overflow-x: hidden; 
-          background: ${theme.bg};
-          color: ${theme.text};
-          transition: background 0.5s ease, color 0.5s ease;
-        }
-        ::selection { background: ${theme.accent}; color: white; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: ${theme.bg}; }
-        ::-webkit-scrollbar-thumb { 
-          background: ${theme.border}; 
-          border-radius: 4px; 
-        }
-        ::-webkit-scrollbar-thumb:hover { 
-          background: ${theme.accent}; 
-        }
-      `}</style>
-
-      {/* Preloader */}
-      {isLoading && (
-        <Preloader theme={theme} onComplete={() => setIsLoading(false)} />
-      )}
-
-      {/* Header */}
-      <Header 
-        theme={theme} 
-        currentTheme={currentTheme} 
-        setTheme={setCurrentTheme} 
-      />
-
-      {/* Main Content */}
-      <main>
-        <HeroSection theme={theme} />
-        <VisionSection theme={theme} />
-        <EcosystemSection theme={theme} />
-        <ServicesSection theme={theme} />
-        <StatsSection theme={theme} />
-        <RoadmapSection theme={theme} />
-        <TrustSection theme={theme} />
-        <ContactSection theme={theme} />
-      </main>
-
-      {/* Footer */}
-      <Footer theme={theme} />
-
-      {/* Floating Elements */}
-      <AIAssistant theme={theme} />
-      <WhatsAppButton theme={theme} />
-      <ScrollToTop theme={theme} />
+    <div>
+      <Cursor />
+      <Nav />
+      <Hero />
+      <Ticker />
+      <Platforms />
+      <Domains />
+      <Projects />
+      <Founder />
+      <CTA />
+      <Footer />
     </div>
   );
 }

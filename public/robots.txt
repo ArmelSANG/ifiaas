@@ -1,0 +1,56 @@
+# ══════════════════════════════════════════
+# IFIAAS — robots.txt
+# https://ifiaas.com
+# ══════════════════════════════════════════
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://ifiaas.com/sitemap.xml
+Sitemap: https://ifiaas.com/sitemap-images.xml
+
+# Crawl delay
+Crawl-delay: 1
+
+# ── Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /
+
+# ── Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# ── Facebook
+User-agent: facebookexternalhit
+Allow: /
+
+# ── Twitter
+User-agent: Twitterbot
+Allow: /
+
+# ── WhatsApp
+User-agent: WhatsApp
+Allow: /
+
+# ── LinkedIn
+User-agent: LinkedInBot
+Allow: /
+
+# ── Bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /

@@ -1,0 +1,61 @@
+{
+  "name": "IFIAAS — Informatique, Finance & Agriculture",
+  "short_name": "IFIAAS",
+  "description": "Solutions numériques concrètes depuis le Bénin. GigaZone WiFi Pro, ifiMoney, ifiChat.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#06080d",
+  "theme_color": "#00f5a0",
+  "lang": "fr",
+  "dir": "ltr",
+  "categories": ["business", "finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "label": "IFIAAS Landing Page"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "GigaZone WiFi",
+      "short_name": "GigaZone",
+      "description": "Lancez votre WifiZone",
+      "url": "https://z.ifiaas.com",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "ifiMoney",
+      "short_name": "ifiMoney",
+      "description": "Tontine numérique",
+      "url": "https://money.ifiaas.com",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "ifiChat",
+      "short_name": "ifiChat",
+      "description": "Chat Live × Telegram",
+      "url": "https://chat.ifiaas.com",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ]
+}

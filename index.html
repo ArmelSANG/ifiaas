@@ -1,38 +1,480 @@
 <!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="IFIAAS - Holding Digitale & Financière Panafricaine. Bâtir l'infrastructure digitale et financière de l'Afrique." />
-    <meta name="keywords" content="IFIAAS, holding, digital, finance, Afrique, Bénin, startup, technologie, mobile money, fintech" />
-    <meta name="author" content="IFIAAS - Armel SANGAN" />
-    <meta name="theme-color" content="#ffffff" />
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="IFIAAS - Holding Digitale & Financière Panafricaine" />
-    <meta property="og:description" content="Bâtir l'infrastructure digitale et financière de l'Afrique" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/logo-light.png" />
-    <meta property="og:url" content="https://ifiaas.com" />
-    
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="IFIAAS - Holding Digitale & Financière" />
-    <meta name="twitter:description" content="Bâtir l'infrastructure digitale et financière de l'Afrique" />
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/logo-light.png" />
-    <link rel="apple-touch-icon" href="/logo-light.png" />
-    
-    <!-- Google Fonts - Premium Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    
-    <title>IFIAAS - Holding Digitale & Financière Panafricaine</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="fr" prefix="og: https://ogp.me/ns#">
+<head>
+
+  <!-- ══════════════════════════════════════════════
+       CHARSET & VIEWPORT
+  ══════════════════════════════════════════════ -->
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- ══════════════════════════════════════════════
+       TITLE & PRIMARY META
+  ══════════════════════════════════════════════ -->
+  <title>IFIAAS — Informatique, Finance &amp; Agriculture As A Service | Bénin</title>
+  <meta name="title" content="IFIAAS — Informatique, Finance &amp; Agriculture As A Service | Bénin" />
+  <meta name="description" content="IFIAAS est une entreprise tech multi-domaines basée à Zinvié, Bénin. GigaZone WiFi Pro (lancez votre WifiZone pour moins de 50 000 FCFA, 100% légal ARCEP), ifiMoney (tontine numérique sécurisée) et ifiChat (chat live × Telegram). Solutions numériques concrètes pour l'Afrique et le monde." />
+  <meta name="keywords" content="IFIAAS, GigaZone WiFi, WiFi Bénin, hotspot WiFi, WifiZone, ifiMoney, tontine numérique, épargne collective, ifiChat, chat Telegram, Armel Sangan, informatique Bénin, finance digitale, agriculture tech, développement fullstack, ARCEP Bénin, marketplace crypto, Zinvié, Afrique numérique, tech Bénin, startup Bénin, numérique Afrique" />
+  <meta name="author" content="Armel SANGAN" />
+  <meta name="publisher" content="IFIAAS" />
+  <meta name="copyright" content="© 2026 IFIAAS — Armel SANGAN" />
+  <meta name="language" content="fr" />
+  <meta name="revisit-after" content="7 days" />
+  <meta name="rating" content="general" />
+  <meta name="category" content="Technology, Finance, Agriculture, Startup" />
+  <meta name="classification" content="Business" />
+  <meta name="coverage" content="Worldwide" />
+  <meta name="distribution" content="Global" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+
+  <!-- ══════════════════════════════════════════════
+       CANONICAL & HREFLANG
+  ══════════════════════════════════════════════ -->
+  <link rel="canonical" href="https://ifiaas.com/" />
+  <link rel="alternate" hreflang="fr" href="https://ifiaas.com/" />
+  <link rel="alternate" hreflang="x-default" href="https://ifiaas.com/" />
+
+  <!-- ══════════════════════════════════════════════
+       OPEN GRAPH — Facebook, LinkedIn, WhatsApp
+  ══════════════════════════════════════════════ -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="IFIAAS" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:url" content="https://ifiaas.com/" />
+  <meta property="og:title" content="IFIAAS — Informatique, Finance &amp; Agriculture | Bénin" />
+  <meta property="og:description" content="GigaZone WiFi Pro, ifiMoney (tontine numérique) et ifiChat — 3 plateformes live bâties depuis le Bénin. Lancez votre WifiZone avec moins de 50 000 FCFA. 100% légal ARCEP." />
+  <meta property="og:image" content="https://ifiaas.com/og-image.png" />
+  <meta property="og:image:secure_url" content="https://ifiaas.com/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="IFIAAS — Informatique, Finance &amp; Agriculture As A Service — Zinvié, Bénin" />
+
+  <!-- ══════════════════════════════════════════════
+       TWITTER / X CARD
+  ══════════════════════════════════════════════ -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@ifiaas" />
+  <meta name="twitter:creator" content="@ifiaas" />
+  <meta name="twitter:url" content="https://ifiaas.com/" />
+  <meta name="twitter:title" content="IFIAAS — Tech Multi-Domaines depuis le Bénin 🇧🇯" />
+  <meta name="twitter:description" content="GigaZone WiFi Pro, ifiMoney &amp; ifiChat — 3 plateformes live. Lancez votre WifiZone pour moins de 50 000 FCFA. 100% légal ARCEP Bénin." />
+  <meta name="twitter:image" content="https://ifiaas.com/og-image.png" />
+  <meta name="twitter:image:alt" content="IFIAAS — Solutions numériques depuis Zinvié, Bénin" />
+
+  <!-- ══════════════════════════════════════════════
+       GEO & LOCAL SEO
+  ══════════════════════════════════════════════ -->
+  <meta name="geo.region" content="BJ-AQ" />
+  <meta name="geo.placename" content="Zinvié, Atlantique, Bénin" />
+  <meta name="geo.position" content="6.5244;2.3584" />
+  <meta name="ICBM" content="6.5244, 2.3584" />
+  <meta name="DC.title" content="IFIAAS" />
+  <meta name="DC.creator" content="Armel SANGAN" />
+  <meta name="DC.subject" content="Informatique, Finance, Agriculture, Tech, Bénin" />
+  <meta name="DC.language" content="fr" />
+  <meta name="DC.rights" content="© 2026 IFIAAS" />
+
+  <!-- ══════════════════════════════════════════════
+       PWA & APP
+  ══════════════════════════════════════════════ -->
+  <meta name="application-name" content="IFIAAS" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="IFIAAS" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#00f5a0" />
+  <meta name="msapplication-TileColor" content="#06080d" />
+  <meta name="msapplication-navbutton-color" content="#00f5a0" />
+  <meta name="format-detection" content="telephone=yes" />
+
+  <!-- ══════════════════════════════════════════════
+       ROBOTS
+  ══════════════════════════════════════════════ -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="bingbot" content="index, follow" />
+
+  <!-- ══════════════════════════════════════════════
+       FAVICON & ICONS
+  ══════════════════════════════════════════════ -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="mask-icon" href="/favicon.svg" color="#00f5a0" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- ══════════════════════════════════════════════
+       PERFORMANCE — PRECONNECT & DNS PREFETCH
+  ══════════════════════════════════════════════ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://z.ifiaas.com" />
+  <link rel="dns-prefetch" href="https://money.ifiaas.com" />
+  <link rel="dns-prefetch" href="https://chat.ifiaas.com" />
+  <link rel="dns-prefetch" href="https://wa.me" />
+
+  <!-- FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 1. ORGANIZATION
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://ifiaas.com/#organization",
+    "name": "IFIAAS",
+    "alternateName": ["Informatique Finance Agriculture As A Service", "IFIAAS Bénin", "GigaZone"],
+    "url": "https://ifiaas.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://ifiaas.com/favicon.svg",
+      "width": 64,
+      "height": 64
+    },
+    "image": "https://ifiaas.com/og-image.png",
+    "description": "IFIAAS est une entreprise technologique multi-domaines basée à Zinvié, Bénin. Elle développe GigaZone WiFi Pro, ifiMoney (tontine numérique) et ifiChat, des solutions numériques concrètes pour l'Afrique et le monde.",
+    "founder": { "@id": "https://ifiaas.com/#founder" },
+    "foundingDate": "2024",
+    "foundingLocation": { "@type": "Place", "name": "Zinvié, Bénin" },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Zinvié",
+      "addressRegion": "Atlantique",
+      "addressCountry": "BJ"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 6.5244,
+      "longitude": 2.3584
+    },
+    "contactPoint": [
+      {
+        "@type": "ContactPoint",
+        "telephone": "+22967455462",
+        "contactType": "customer support",
+        "availableLanguage": ["French"],
+        "areaServed": ["BJ", "Africa", "Worldwide"]
+      },
+      {
+        "@type": "ContactPoint",
+        "email": "contact@ifiaas.com",
+        "contactType": "customer service",
+        "availableLanguage": ["French"]
+      }
+    ],
+    "sameAs": [
+      "https://youtube.com/@ifiaas",
+      "https://z.ifiaas.com",
+      "https://money.ifiaas.com",
+      "https://chat.ifiaas.com"
+    ],
+    "areaServed": "Worldwide",
+    "knowsAbout": ["Informatique", "Finance Digitale", "Agriculture Tech", "WiFi", "Tontine Numérique", "IA", "Blockchain"],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Plateformes IFIAAS",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "GigaZone WiFi Pro", "url": "https://z.ifiaas.com" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "ifiMoney", "url": "https://money.ifiaas.com" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "ifiChat", "url": "https://chat.ifiaas.com" } }
+      ]
+    }
+  }
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 2. WEBSITE + SEARCHBOX
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://ifiaas.com/#website",
+    "url": "https://ifiaas.com",
+    "name": "IFIAAS",
+    "description": "Solutions numériques en informatique, finance et agriculture depuis le Bénin",
+    "publisher": { "@id": "https://ifiaas.com/#organization" },
+    "inLanguage": "fr",
+    "copyrightYear": 2026,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": { "@type": "EntryPoint", "urlTemplate": "https://ifiaas.com/?q={search_term_string}" },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 3. WEBPAGE
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://ifiaas.com/#webpage",
+    "url": "https://ifiaas.com/",
+    "name": "IFIAAS — Informatique, Finance &amp; Agriculture As A Service | Bénin",
+    "description": "IFIAAS développe GigaZone WiFi Pro, ifiMoney et ifiChat — trois plateformes numériques actives depuis Zinvié, Bénin.",
+    "isPartOf": { "@id": "https://ifiaas.com/#website" },
+    "about": { "@id": "https://ifiaas.com/#organization" },
+    "inLanguage": "fr",
+    "datePublished": "2024-01-01",
+    "dateModified": "2026-03-01",
+    "author": { "@id": "https://ifiaas.com/#founder" },
+    "primaryImageOfPage": {
+      "@type": "ImageObject",
+      "url": "https://ifiaas.com/og-image.png",
+      "width": 1200,
+      "height": 630
+    }
+  }
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 4. LOCAL BUSINESS
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": ["LocalBusiness", "ProfessionalService"],
+    "@id": "https://ifiaas.com/#localbusiness",
+    "name": "IFIAAS",
+    "image": "https://ifiaas.com/og-image.png",
+    "url": "https://ifiaas.com",
+    "telephone": "+22967455462",
+    "email": "contact@ifiaas.com",
+    "priceRange": "FCFA",
+    "currenciesAccepted": "XOF",
+    "paymentAccepted": "Mobile Money, Cash, Online",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Zinvié",
+      "addressLocality": "Zinvié",
+      "addressRegion": "Atlantique",
+      "addressCountry": "BJ"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 6.5244,
+      "longitude": 2.3584
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      "opens": "00:00",
+      "closes": "23:59"
+    },
+    "sameAs": ["https://youtube.com/@ifiaas", "https://z.ifiaas.com", "https://money.ifiaas.com", "https://chat.ifiaas.com"]
+  }
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 5. SERVICES (ItemList)
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Plateformes IFIAAS",
+    "description": "Les 3 plateformes numériques actives d'IFIAAS",
+    "numberOfItems": 3,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@type": "SoftwareApplication",
+          "@id": "https://z.ifiaas.com/#app",
+          "name": "GigaZone WiFi Pro",
+          "alternateName": "GigaZone",
+          "url": "https://z.ifiaas.com",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web, Android, iOS",
+          "description": "Système de gestion de hotspot WiFi rentable. Transformez un routeur en WifiZone professionnelle pour moins de 50 000 FCFA. 100% légal ARCEP Bénin, installation gratuite, vous gardez 100% de vos revenus.",
+          "offers": {
+            "@type": "AggregateOffer",
+            "lowPrice": "100",
+            "highPrice": "3000",
+            "priceCurrency": "XOF",
+            "offerCount": 10
+          },
+          "featureList": ["100% légal ARCEP Bénin", "Installation gratuite", "Tickets WiFi dès 100 FCFA", "Système de parrainage", "VPN intégré", "50 Mbps Ultra Rapide"],
+          "provider": { "@id": "https://ifiaas.com/#organization" }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "item": {
+          "@type": "SoftwareApplication",
+          "@id": "https://money.ifiaas.com/#app",
+          "name": "ifiMoney",
+          "url": "https://money.ifiaas.com",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web, Android, iOS",
+          "description": "Tontine numérique sécurisée. Gérez vos groupes d'épargne collective en ligne — cotisations automatisées, tours de paiement transparents, suivi en temps réel.",
+          "featureList": ["Tontine 100% numérique", "Groupes d'épargne collective", "Suivi en temps réel", "Transparence totale", "Accessible partout"],
+          "provider": { "@id": "https://ifiaas.com/#organization" }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@type": "SoftwareApplication",
+          "@id": "https://chat.ifiaas.com/#app",
+          "name": "ifiChat",
+          "url": "https://chat.ifiaas.com",
+          "applicationCategory": "CommunicationApplication",
+          "operatingSystem": "Web, Android, iOS",
+          "description": "Chat live en temps réel intégré nativement à Telegram. Communication instantanée, support client et animation de communauté.",
+          "featureList": ["Chat live temps réel", "Intégration Telegram native", "Support client", "Multi-plateformes"],
+          "provider": { "@id": "https://ifiaas.com/#organization" }
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 6. PERSON (Founder)
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": "https://ifiaas.com/#founder",
+    "name": "Armel SANGAN",
+    "givenName": "Armel",
+    "familyName": "SANGAN",
+    "jobTitle": "Promoteur & CEO — IFIAAS",
+    "description": "Développeur fullstack, designer graphique et entrepreneur basé à Zinvié, Bénin. Fondateur d'IFIAAS et créateur de GigaZone WiFi Pro, ifiMoney et ifiChat.",
+    "url": "https://ifiaas.com/#fondateur",
+    "email": "contact@ifiaas.com",
+    "telephone": "+22967455462",
+    "image": "https://ifiaas.com/og-image.png",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Zinvié",
+      "addressRegion": "Atlantique",
+      "addressCountry": "BJ"
+    },
+    "worksFor": { "@id": "https://ifiaas.com/#organization" },
+    "sameAs": ["https://youtube.com/@ifiaas", "https://wa.me/22967455462"],
+    "knowsAbout": ["Développement Fullstack", "Conception Graphique", "Finance Digitale", "Agriculture Tech", "Réseaux WiFi", "UI/UX Design", "Entrepreneuriat", "IA"],
+    "hasOccupation": [
+      { "@type": "Occupation", "name": "Développeur Fullstack" },
+      { "@type": "Occupation", "name": "Designer Graphique" },
+      { "@type": "Occupation", "name": "Entrepreneur Tech" }
+    ],
+    "nationality": { "@type": "Country", "name": "Bénin" }
+  }
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 7. FAQ
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Qu'est-ce que IFIAAS ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "IFIAAS (Informatique, Finance, Agriculture As A Service) est une entreprise technologique multi-domaines basée à Zinvié, Bénin, fondée par Armel SANGAN. Elle développe GigaZone WiFi Pro, ifiMoney (tontine numérique) et ifiChat (chat live × Telegram)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Qu'est-ce que GigaZone WiFi Pro ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "GigaZone WiFi Pro (z.ifiaas.com) transforme un routeur classique en hotspot WiFi rentable pour moins de 50 000 FCFA. Service 100% légal ARCEP Bénin, installation gratuite, vous gardez 100% de vos bénéfices. Forfaits de 100 FCFA (1h) à 3 000 FCFA (30 jours)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Qu'est-ce que ifiMoney ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ifiMoney (money.ifiaas.com) est une plateforme de tontine numérique sécurisée qui digitalise la pratique africaine de l'épargne collective : gestion de groupes en ligne, cotisations automatisées et suivi en temps réel."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Qu'est-ce que ifiChat ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ifiChat (chat.ifiaas.com) est une interface de chat live intégrée nativement à Telegram pour communiquer avec son audience, gérer le support client et animer sa communauté depuis une seule interface."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Comment contacter IFIAAS ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Contactez IFIAAS via WhatsApp au +229 67 45 54 62, par email à contact@ifiaas.com, ou suivez la chaîne YouTube @ifiaas. Basé à Zinvié, Bénin."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quels sont les projets futurs d'IFIAAS ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "IFIAAS développe actuellement une marketplace de monnaie virtuelle (crypto/DeFi) et une plateforme avancée de gestion WiFi Zone Manager Pro. D'autres projets sont en cours."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 8. BREADCRUMB
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "IFIAAS", "item": "https://ifiaas.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Plateformes", "item": "https://ifiaas.com/#plateformes" },
+      { "@type": "ListItem", "position": 3, "name": "GigaZone WiFi Pro", "item": "https://z.ifiaas.com" },
+      { "@type": "ListItem", "position": 4, "name": "ifiMoney", "item": "https://money.ifiaas.com" },
+      { "@type": "ListItem", "position": 5, "name": "ifiChat", "item": "https://chat.ifiaas.com" }
+    ]
+  }
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       JSON-LD — 9. VIDEO (YouTube channel)
+  ══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": "Chaîne YouTube IFIAAS",
+    "description": "Chaîne officielle IFIAAS — tutoriels, présentations des plateformes GigaZone, ifiMoney et ifiChat.",
+    "thumbnailUrl": "https://ifiaas.com/og-image.png",
+    "uploadDate": "2024-01-01",
+    "publisher": { "@id": "https://ifiaas.com/#organization" },
+    "contentUrl": "https://youtube.com/@ifiaas",
+    "embedUrl": "https://youtube.com/@ifiaas"
+  }
+  </script>
+
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
 </html>
