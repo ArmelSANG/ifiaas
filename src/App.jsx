@@ -1,811 +1,229 @@
 import { useState, useEffect, useRef } from "react";
 
-/* ═══════════════════════════════════════════
-   GLOBAL STYLES
-═══════════════════════════════════════════ */
-const GLOBAL_CSS = `
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Load fonts via link tag — @import in injected style doesn't work */
+if(!document.getElementById("hz-fonts")){const l=document.createElement("link");l.id="hz-fonts";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,800;1,9..144,300;1,9..144,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap";document.head.appendChild(l)}
 
-  :root {
-    --bg: #06080d;
-    --surface: #0d1018;
-    --surface2: #131720;
-    --white: #f0ede6;
-    --muted: rgba(240,237,230,0.45);
-    --green: #0d6e3f;
-    --green2: #1aa860;
-    --accent: #00f5a0;
-    --gold: #d4a843;
-    --gold2: #f0c860;
-    --border: rgba(240,237,230,0.07);
-
-    --px: clamp(1.2rem, 5vw, 5rem);
-    --section-py: clamp(4rem, 8vw, 8rem);
-  }
-
-  html { scroll-behavior: smooth; font-size: 16px; }
-
-  body {
-    background: var(--bg);
-    color: var(--white);
-    font-family: 'Syne', sans-serif;
-    overflow-x: hidden;
-    cursor: none;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  * { cursor: none !important; }
-
-  @media (hover: none) {
-    * { cursor: auto !important; }
-    body { cursor: auto; }
-  }
-
-  a { text-decoration: none; color: inherit; }
-
-  ::selection { background: rgba(0,245,160,0.2); color: var(--accent); }
-
-  ::-webkit-scrollbar { width: 3px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
-
-  /* Noise overlay */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 8000;
-    opacity: 0.4;
-  }
-
-  /* ── Keyframes ── */
-  @keyframes fadeUp   { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes float    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-16px); } }
-  /* Mobile: forcer la visibilité hero */
-  @media (max-width: 900px) {
-    .hero-force-visible { opacity:1 !important; transform:none !important; animation:none !important; }
-  }
-  @keyframes gridMove { from { transform:translateY(0); } to { transform:translateY(60px); } }
-  @keyframes ticker   { from { transform:translateX(0); } to { transform:translateX(-50%); } }
-  @keyframes pulse    { 0%,100% { opacity:.5; transform:scale(1); } 50% { opacity:1; transform:scale(1.12); } }
-  @keyframes spinC    { from { transform:translate(-50%,-50%) rotate(0deg); } to { transform:translate(-50%,-50%) rotate(360deg); } }
-  @keyframes scanline { 0% { top:-4%; } 100% { top:106%; } }
-  @keyframes blink    { 0%,100% { opacity:1; } 50% { opacity:0; } }
-
-  /* ── Reveal ── */
-  .rv { opacity:0; transform:translateY(44px); transition:opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1); }
-  .rv.in { opacity:1; transform:translateY(0); }
-  .rv.d1 { transition-delay:.1s; }
-  .rv.d2 { transition-delay:.2s; }
-  .rv.d3 { transition-delay:.32s; }
-
-  /* ── Nav link ── */
-  .nl { font-family:'JetBrains Mono',monospace; font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); position:relative; transition:color .3s; }
-  .nl::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--accent); transition:width .3s; }
-  .nl:hover { color:var(--accent); }
-  .nl:hover::after { width:100%; }
-
-  /* ── Platform tab ── */
-  .ptab { border:none; transition:all .3s; }
-  .ptab:hover { background:rgba(240,237,230,.04) !important; }
-
-  /* ── Domain item ── */
-  .di { transition:padding-left .4s cubic-bezier(.16,1,.3,1), border-color .4s; }
-  .di:hover { padding-left:1.4rem !important; border-left-color:var(--accent) !important; }
-
-  /* ── Skill tag ── */
-  .sk { transition:border-color .3s, color .3s, background .3s; }
-  .sk:hover { border-color:var(--accent) !important; color:var(--accent) !important; background:rgba(0,245,160,.05) !important; }
-
-  /* ── Footer link ── */
-  .fl { display:block; transition:color .3s; }
-  .fl:hover { color:var(--accent) !important; }
-
-  /* ── Highlight row ── */
-  .hi { transition:background .3s, transform .2s, padding-left .2s; }
-  .hi:hover { background:rgba(0,245,160,.07) !important; padding-left:.5rem; }
-
-  /* ── Project card ── */
-  .pj { transition:transform .35s; }
-  .pj:hover { transform:translateY(-5px); }
-
-  /* ── CTA btn ── */
-  .ctab { transition:transform .2s, filter .2s; }
-  .ctab:hover { transform:translateY(-3px); filter:brightness(1.1); }
-
-  /* ══════════════════════════════
-     RESPONSIVE BREAKPOINTS
-  ══════════════════════════════ */
-
-  /* Tablet ≤ 900px */
-  @media (max-width: 900px) {
-    .hero-grid    { grid-template-columns: 1fr !important; }
-    .hero-right   { display: none !important; }
-    .domains-grid { grid-template-columns: 1fr !important; }
-    .domain-vis   { display: none !important; }
-    .proj-grid    { grid-template-columns: 1fr !important; }
-    .founder-grid { grid-template-columns: 1fr !important; }
-    .footer-grid  { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
-    .nav-links    { display: none !important; }
-  }
-
-  /* Mobile ≤ 600px */
-  @media (max-width: 600px) {
-    .plat-tabs    { grid-template-columns: 1fr !important; }
-    .plat-detail  { grid-template-columns: 1fr !important; }
-    .price-grid   { grid-template-columns: 1fr 1fr !important; }
-    .footer-grid  { grid-template-columns: 1fr !important; }
-    .hero-stats   { gap: 1.5rem !important; }
-    .cta-btns     { flex-direction: column !important; align-items: center !important; }
-    .founder-contacts { flex-direction: column !important; }
-    .proj-inner   { grid-template-columns: 1fr !important; }
-  }
-
-  /* Very small ≤ 380px */
-  @media (max-width: 380px) {
-    .hero-stats   { flex-wrap: wrap !important; }
-  }
+const CSS = `
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F2F5FA;--bg-warm:#FAFAF8;--white:#FFFFFF;--ink:#0A0F1E;--ink-2:#1B2341;--ink-3:#3D4663;--ink-4:#6B7394;--ink-5:#9BA3BE;--ink-6:#C8CDE0;--blue:#1449E3;--blue-deep:#0B2D8A;--blue-bright:#5B8DEF;--blue-sky:#89B4FA;--blue-pale:#D6E4FF;--blue-ghost:#EEF3FF;--coral:#FF6B4A;--mint:#00D4AA;--amber:#FFB020;--violet:#7C5CFC;--font-h:'Fraunces',serif;--font-b:'Outfit',sans-serif;--font-m:'IBM Plex Mono',monospace;--r-xl:28px;--r-lg:20px;--r-md:14px;--r-sm:8px;--px:clamp(1.2rem,5vw,7rem);--spy:clamp(6rem,12vw,11rem)}
+html{scroll-behavior:smooth}body{background:var(--bg);color:var(--ink);font-family:var(--font-b);overflow-x:hidden;-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}::selection{background:var(--blue-pale);color:var(--blue-deep)}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--blue-sky);border-radius:10px}
+@keyframes heroSlideUp{from{opacity:0;transform:translateY(80px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes heroFade{from{opacity:0}to{opacity:1}}@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}@keyframes float1{0%,100%{transform:translate(0,0)}25%{transform:translate(12px,-18px)}50%{transform:translate(-8px,-10px)}75%{transform:translate(6px,8px)}}@keyframes float2{0%,100%{transform:translate(0,0)}33%{transform:translate(-15px,12px)}66%{transform:translate(10px,-14px)}}@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}@keyframes scaleReveal{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}@keyframes cardFloat1{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}@keyframes cardFloat2{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes cardFloat3{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+.rv{opacity:0;transform:translateY(50px);transition:opacity 1s cubic-bezier(.22,1,.36,1),transform 1s cubic-bezier(.22,1,.36,1)}.rv.in{opacity:1;transform:translateY(0)}.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.22s}.rv.d3{transition-delay:.34s}.rv.d4{transition-delay:.46s}
+@media(max-width:1024px){.bento-hero{grid-template-columns:1fr!important}.hero-visual-wrap{height:380px!important;min-height:auto!important}.hero-fv{opacity:1!important;transform:none!important;animation:none!important}.bento-plat{grid-template-columns:1fr!important}.bento-domains{grid-template-columns:1fr!important}.domain-vis{display:none!important}.bento-founder{grid-template-columns:1fr!important}.bento-projects{grid-template-columns:1fr!important}.bento-plat-detail{grid-template-columns:1fr!important}.footer-inner{grid-template-columns:1fr 1fr!important;gap:2.5rem!important}.nav-links-d{display:none!important}.hamburger{display:flex!important}}
+@media(max-width:640px){.footer-inner{grid-template-columns:1fr!important}.hero-stats-row{flex-direction:column!important;gap:1rem!important}.cta-btns{flex-direction:column!important;width:100%!important}.cta-btns a{width:100%!important;text-align:center!important;justify-content:center!important}.plat-features{grid-template-columns:1fr!important}.hero-visual-wrap{height:320px!important}.founder-contacts{flex-direction:column!important}}
 `;
+if(!document.getElementById("hz-css")){const s=document.createElement("style");s.id="hz-css";s.textContent=CSS;document.head.appendChild(s)}
 
-/* ── Inject styles once ── */
-if (!document.getElementById("ifiaas-styles")) {
-  const s = document.createElement("style");
-  s.id = "ifiaas-styles";
-  s.textContent = GLOBAL_CSS;
-  document.head.appendChild(s);
-}
+function useReveal(){useEffect(()=>{const obs=new IntersectionObserver(ents=>{ents.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");obs.unobserve(e.target)}})},{threshold:0.06,rootMargin:"0px 0px -40px 0px"});document.querySelectorAll(".rv:not(.in)").forEach(el=>obs.observe(el));return()=>obs.disconnect()},[])}
+
+const Label=({children,color="var(--blue)"})=>(<div style={{display:"inline-flex",alignItems:"center",gap:10,marginBottom:20}}><div style={{width:28,height:3,borderRadius:3,background:color}}/><span style={{fontFamily:"var(--font-m)",fontSize:".65rem",letterSpacing:".2em",textTransform:"uppercase",color,fontWeight:600}}>{children}</span></div>);
+const Pill=({children,color="var(--blue)",bg="var(--blue-ghost)"})=>(<span style={{display:"inline-block",fontFamily:"var(--font-m)",fontSize:".6rem",letterSpacing:".08em",padding:".35rem 1rem",background:bg,color,borderRadius:50,fontWeight:600}}>{children}</span>);
 
 /* ═══════════════════════════════════════════
-   HOOKS
+   CANVAS HERO — Fluid Blobs + Particle Network + Mouse Parallax
+   Pure Canvas2D — zero dependencies, runs on any device
 ═══════════════════════════════════════════ */
-function useReveal() {
-  useEffect(() => {
-    const els = document.querySelectorAll(".rv");
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); obs.unobserve(e.target); } }),
-      { threshold: 0.07 }
-    );
-    els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
-  });
-}
+function HeroCanvas(){
+  const wrapRef=useRef(null);
+  const canvasRef=useRef(null);
+  const mouse=useRef({x:0.5,y:0.5});
+  const animRef=useRef(null);
 
-function useIsMobile() {
-  const [mobile, setMobile] = useState(window.innerWidth <= 600);
-  useEffect(() => {
-    const fn = () => setMobile(window.innerWidth <= 600);
-    window.addEventListener("resize", fn);
-    return () => window.removeEventListener("resize", fn);
-  }, []);
-  return mobile;
-}
-
-/* ═══════════════════════════════════════════
-   SHARED COMPONENTS
-═══════════════════════════════════════════ */
-const Tag = ({ label }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: ".8rem", marginBottom: "1.2rem" }}>
-    <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".67rem", letterSpacing: ".25em", textTransform: "uppercase", color: "var(--accent)" }}>{label}</span>
-    <div style={{ width: 36, height: 1, background: "var(--accent)" }} />
-  </div>
-);
-
-const SectionTitle = ({ children, style = {} }) => (
-  <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(2rem,3.5vw,3.6rem)", fontWeight: 600, lineHeight: 1.08, ...style }}>{children}</h2>
-);
-
-const Corner = ({ pos, color = "var(--accent)", size = 55 }) => {
-  const styles = {
-    tl: { top: -8, left: -8, borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` },
-    tr: { top: -8, right: -8, borderTop: `2px solid ${color}`, borderRight: `2px solid ${color}` },
-    bl: { bottom: -8, left: -8, borderBottom: `2px solid ${color}`, borderLeft: `2px solid ${color}` },
-    br: { bottom: -8, right: -8, borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` },
-  };
-  return <div style={{ position: "absolute", width: size, height: size, ...styles[pos] }} />;
-};
-
-/* ═══════════════════════════════════════════
-   CURSOR  (hidden on touch devices)
-═══════════════════════════════════════════ */
-function Cursor() {
-  const dot = useRef(null);
-  const ring = useRef(null);
-  const pos = useRef({ x: 0, y: 0 });
-  const rp = useRef({ x: 0, y: 0 });
-  const [touch, setTouch] = useState(false);
-
-  useEffect(() => {
-    if ("ontouchstart" in window) { setTouch(true); return; }
-
-    const mv = (e) => {
-      pos.current = { x: e.clientX, y: e.clientY };
-      if (dot.current) { dot.current.style.left = e.clientX - 5 + "px"; dot.current.style.top = e.clientY - 5 + "px"; }
+  useEffect(()=>{
+    const wrap=wrapRef.current;const canvas=canvasRef.current;
+    if(!canvas||!wrap)return;
+    const ctx=canvas.getContext("2d");
+    if(!ctx)return;
+    let W,H,dpr;
+    const resize=()=>{
+      dpr=Math.min(window.devicePixelRatio||1,2);
+      const rect=wrap.getBoundingClientRect();
+      W=rect.width||window.innerWidth;
+      H=rect.height||window.innerHeight;
+      canvas.width=W*dpr;canvas.height=H*dpr;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
     };
-    const big = () => dot.current && (dot.current.style.transform = "scale(2.8)");
-    const sm  = () => dot.current && (dot.current.style.transform = "scale(1)");
-    document.addEventListener("mousemove", mv);
-    document.querySelectorAll("a,button").forEach((el) => { el.addEventListener("mouseenter", big); el.addEventListener("mouseleave", sm); });
+    resize();window.addEventListener("resize",resize);
+    const onMouse=(e)=>{const r=wrap.getBoundingClientRect();mouse.current.x=Math.max(0,Math.min(1,(e.clientX-r.left)/W));mouse.current.y=Math.max(0,Math.min(1,(e.clientY-r.top)/H))};
+    window.addEventListener("mousemove",onMouse);
 
-    let raf;
-    const loop = () => {
-      rp.current.x += (pos.current.x - rp.current.x - 18) * 0.1;
-      rp.current.y += (pos.current.y - rp.current.y - 18) * 0.1;
-      if (ring.current) { ring.current.style.left = rp.current.x + "px"; ring.current.style.top = rp.current.y + "px"; }
-      raf = requestAnimationFrame(loop);
-    };
-    loop();
-    return () => { document.removeEventListener("mousemove", mv); cancelAnimationFrame(raf); };
-  }, []);
+    const blobs=[
+      {x:.35,y:.4,r:130,vx:.15,vy:.12,color:[20,73,227],phase:0},
+      {x:.65,y:.55,r:95,vx:-.12,vy:.18,color:[0,212,170],phase:2},
+      {x:.5,y:.28,r:75,vx:.1,vy:-.14,color:[255,176,32],phase:4},
+      {x:.22,y:.68,r:60,vx:-.08,vy:-.1,color:[124,92,252],phase:1.5},
+      {x:.75,y:.25,r:68,vx:.13,vy:.08,color:[255,107,74],phase:3},
+    ];
 
-  if (touch) return null;
-  return (
-    <>
-      <div ref={dot} style={{ position: "fixed", width: 10, height: 10, background: "var(--accent)", borderRadius: "50%", pointerEvents: "none", zIndex: 9999, transition: "transform .18s", mixBlendMode: "difference" }} />
-      <div ref={ring} style={{ position: "fixed", width: 36, height: 36, border: "1px solid rgba(0,245,160,.32)", borderRadius: "50%", pointerEvents: "none", zIndex: 9998 }} />
-    </>
-  );
-}
+    const PC=65;const particles=[];
+    for(let i=0;i<PC;i++){particles.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*2+.8,alpha:Math.random()*.4+.15,color:[[20,73,227],[0,212,170],[255,176,32],[124,92,252]][Math.floor(Math.random()*4)]})}
+    const CD=.12;let time=0;
 
-/* ═══════════════════════════════════════════
-   NAV
-═══════════════════════════════════════════ */
-function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+    const draw=()=>{
+      time+=.008;ctx.clearRect(0,0,W,H);
+      const bgG=ctx.createRadialGradient(W*.5,H*.4,0,W*.5,H*.5,W*.7);
+      bgG.addColorStop(0,"rgba(214,228,255,0.3)");bgG.addColorStop(.5,"rgba(238,243,255,0.15)");bgG.addColorStop(1,"rgba(242,245,250,0)");
+      ctx.fillStyle=bgG;ctx.fillRect(0,0,W,H);
+      const mx=mouse.current.x,my=mouse.current.y;
 
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
-
-  const links = [["Plateformes", "#plateformes"], ["Domaines", "#domaines"], ["Projets", "#projets"], ["Fondateur", "#fondateur"]];
-
-  return (
-    <>
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 500, padding: `1.3rem var(--px)`, display: "flex", alignItems: "center", justifyContent: "space-between", backdropFilter: "blur(20px)", background: scrolled ? "rgba(6,8,13,.9)" : "transparent", borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent", transition: "all .5s" }}>
-        <a href="#" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "1.15rem", fontWeight: 700, letterSpacing: ".2em", color: "var(--accent)" }}>IFIAAS</a>
-
-        {/* Desktop links */}
-        <div className="nav-links" style={{ display: "flex", gap: "2.5rem" }}>
-          {links.map(([l, h]) => <a key={l} href={h} className="nl">{l}</a>)}
-        </div>
-
-        {/* Desktop CTA */}
-        <a href="https://wa.me/22967455462" target="_blank" rel="noreferrer"
-          className="nav-links"
-          style={{ background: "var(--accent)", color: "#000", padding: ".55rem 1.5rem", fontFamily: "'JetBrains Mono',monospace", fontSize: ".7rem", fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", clipPath: "polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%)", transition: "background .3s" }}
-          onMouseEnter={e => e.currentTarget.style.background = "var(--gold2)"}
-          onMouseLeave={e => e.currentTarget.style.background = "var(--accent)"}>
-          Contact
-        </a>
-
-        {/* Hamburger (mobile) */}
-        <button onClick={() => setMenuOpen(!menuOpen)}
-          style={{ display: "none", background: "none", border: "none", padding: ".5rem", flexDirection: "column", gap: "5px" }}
-          className="hamburger">
-          {[0, 1, 2].map(i => (
-            <span key={i} style={{ display: "block", width: 24, height: 2, background: menuOpen && i === 1 ? "transparent" : "var(--accent)", borderRadius: 2, transition: "all .3s", transform: menuOpen ? (i === 0 ? "rotate(45deg) translate(5px,5px)" : i === 2 ? "rotate(-45deg) translate(5px,-5px)" : "none") : "none" }} />
-          ))}
-        </button>
-      </nav>
-
-      {/* Mobile menu overlay */}
-      {menuOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 490, background: "rgba(6,8,13,.97)", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2.5rem" }}>
-          {links.map(([l, h]) => (
-            <a key={l} href={h} onClick={() => setMenuOpen(false)}
-              style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(2rem,8vw,3rem)", fontWeight: 600, color: "var(--white)", transition: "color .3s" }}
-              onMouseEnter={e => e.currentTarget.style.color = "var(--accent)"}
-              onMouseLeave={e => e.currentTarget.style.color = "var(--white)"}>
-              {l}
-            </a>
-          ))}
-          <a href="https://wa.me/22967455462" target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}
-            style={{ marginTop: "1rem", background: "var(--accent)", color: "#000", padding: ".9rem 2.5rem", fontFamily: "'JetBrains Mono',monospace", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)" }}>
-            WhatsApp
-          </a>
-        </div>
-      )}
-
-      {/* Inject hamburger visibility via style */}
-      <style>{`
-        @media (max-width: 900px) {
-          .hamburger { display: flex !important; }
-        }
-      `}</style>
-    </>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   HERO
-═══════════════════════════════════════════ */
-function Hero() {
-  const words = ["l'informatique", "la finance", "l'agriculture", "GigaZone WiFi", "la tontine digitale"];
-  const [typed, setTyped] = useState("");
-  const wi = useRef(0), ci = useRef(0), del = useRef(false);
-
-  useEffect(() => {
-    let t;
-    const run = () => {
-      const w = words[wi.current];
-      if (!del.current) {
-        ci.current++;
-        setTyped(w.slice(0, ci.current));
-        if (ci.current === w.length) { del.current = true; t = setTimeout(run, 1900); return; }
-      } else {
-        ci.current--;
-        setTyped(w.slice(0, ci.current));
-        if (ci.current === 0) { del.current = false; wi.current = (wi.current + 1) % words.length; }
+      for(const b of blobs){
+        const t=time+b.phase;
+        const bx=(b.x+Math.sin(t*b.vx*2)*.08+Math.cos(t*b.vy*1.5)*.05)*W;
+        const by=(b.y+Math.cos(t*b.vy*2)*.08+Math.sin(t*b.vx*1.8)*.04)*H;
+        const px=(mx-.5)*28,py=(my-.5)*20;
+        const fx=bx+px,fy=by+py;
+        const pr=b.r*(.9+.15*Math.sin(t*1.2));
+        const g=ctx.createRadialGradient(fx,fy,0,fx,fy,pr);
+        g.addColorStop(0,`rgba(${b.color},0.18)`);g.addColorStop(.4,`rgba(${b.color},0.08)`);g.addColorStop(.7,`rgba(${b.color},0.03)`);g.addColorStop(1,`rgba(${b.color},0)`);
+        ctx.fillStyle=g;ctx.beginPath();
+        const pts=8;
+        for(let i=0;i<=pts;i++){const a=(i/pts)*Math.PI*2;const n=Math.sin(a*3+t*1.5)*.15+Math.cos(a*2-t*.8)*.1;const r2=pr*(1+n);const ppx=fx+Math.cos(a)*r2,ppy=fy+Math.sin(a)*r2;
+          if(i===0)ctx.moveTo(ppx,ppy);else{const pa=((i-1)/pts)*Math.PI*2;const pn=Math.sin(pa*3+t*1.5)*.15+Math.cos(pa*2-t*.8)*.1;const ca=(pa+a)/2;const cn=Math.sin(ca*3+t*1.5)*.15+Math.cos(ca*2-t*.8)*.1;const cr=pr*(1+cn)*1.02;ctx.quadraticCurveTo(fx+Math.cos(ca)*cr,fy+Math.sin(ca)*cr,ppx,ppy)}}
+        ctx.closePath();ctx.fill();
+        const ig=ctx.createRadialGradient(fx,fy,0,fx,fy,pr*.5);ig.addColorStop(0,`rgba(${b.color},0.12)`);ig.addColorStop(1,`rgba(${b.color},0)`);ctx.fillStyle=ig;ctx.beginPath();ctx.arc(fx,fy,pr*.5,0,Math.PI*2);ctx.fill();
       }
-      t = setTimeout(run, del.current ? 55 : 100);
-    };
-    t = setTimeout(run, 900);
-    return () => clearTimeout(t);
-  }, []);
 
-  return (
-    <section style={{ minHeight: "100vh", padding: `clamp(7rem,14vw,11rem) var(--px) clamp(4rem,8vw,7rem)`, position: "relative", overflow: "hidden" }}>
-      {/* BG layers */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(0,245,160,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,160,.032) 1px,transparent 1px)", backgroundSize: "60px 60px", animation: "gridMove 15s linear infinite" }} />
-        {[[600, "rgba(13,110,63,.17)", "-10%", null, "-5%", null], [420, "rgba(212,168,67,.11)", "38%", null, null, "3%"], [280, "rgba(0,245,160,.08)", null, "8%", "18%", null]].map(([s, bg, top, bottom, left, right], i) => (
-          <div key={i} style={{ position: "absolute", width: s, height: s, borderRadius: "50%", background: bg, filter: "blur(80px)", top, bottom, left, right, animation: `float ${10 + i}s ease-in-out infinite`, animationDelay: `${-i * 3}s` }} />
-        ))}
-        <div style={{ position: "absolute", left: 0, right: 0, height: 2, background: "linear-gradient(90deg,transparent,rgba(0,245,160,.14),transparent)", animation: "scanline 8s linear infinite" }} />
+      for(const p of particles){p.x+=p.vx*.001;p.y+=p.vy*.001;if(p.x<-.05)p.x=1.05;if(p.x>1.05)p.x=-.05;if(p.y<-.05)p.y=1.05;if(p.y>1.05)p.y=-.05;const dx=mx-p.x,dy=my-p.y,d=Math.sqrt(dx*dx+dy*dy);if(d<.25){p.vx+=dx*.008;p.vy+=dy*.008}p.vx*=.998;p.vy*=.998}
+      ctx.lineWidth=.8;
+      for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){const a=particles[i],b=particles[j];const dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);if(d<CD){const al=(1-d/CD)*.12;ctx.strokeStyle=`rgba(20,73,227,${al})`;ctx.beginPath();ctx.moveTo(a.x*W,a.y*H);ctx.lineTo(b.x*W,b.y*H);ctx.stroke()}}}
+      for(const p of particles){const ppx=p.x*W,ppy=p.y*H;const mdx=mx-p.x,mdy=my-p.y,md=Math.sqrt(mdx*mdx+mdy*mdy);const ga=md<.15?(1-md/.15)*.5:0;
+        if(ga>0){const gl=ctx.createRadialGradient(ppx,ppy,0,ppx,ppy,p.r*6);gl.addColorStop(0,`rgba(${p.color},${ga*.3})`);gl.addColorStop(1,`rgba(${p.color},0)`);ctx.fillStyle=gl;ctx.beginPath();ctx.arc(ppx,ppy,p.r*6,0,Math.PI*2);ctx.fill()}
+        ctx.fillStyle=`rgba(${p.color},${p.alpha+ga*.4})`;ctx.beginPath();ctx.arc(ppx,ppy,p.r*(1+ga),0,Math.PI*2);ctx.fill()}
+      animRef.current=requestAnimationFrame(draw)};
+    draw();
+    return()=>{cancelAnimationFrame(animRef.current);window.removeEventListener("resize",resize);window.removeEventListener("mousemove",onMouse)};
+  },[]);
+  return <div ref={wrapRef} style={{position:"absolute",inset:0,overflow:"hidden"}}><canvas ref={canvasRef} style={{display:"block",width:"100%",height:"100%"}}/></div>;
+}
+
+/* ═══ NAV ═══ */
+function Nav(){
+  const[scrolled,setScrolled]=useState(false);const[open,setOpen]=useState(false);
+  useEffect(()=>{const f=()=>setScrolled(window.scrollY>60);window.addEventListener("scroll",f);return()=>window.removeEventListener("scroll",f)},[]);
+  const L=[["Plateformes","#plateformes"],["Domaines","#domaines"],["Projets","#projets"],["Fondateur","#fondateur"]];
+  return(<>
+    <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:900,padding:scrolled?".7rem var(--px)":"1.1rem var(--px)",display:"flex",alignItems:"center",justifyContent:"space-between",background:scrolled?"rgba(242,245,250,0.82)":"transparent",backdropFilter:scrolled?"blur(28px) saturate(180%)":"none",WebkitBackdropFilter:scrolled?"blur(28px) saturate(180%)":"none",borderBottom:scrolled?"1px solid rgba(10,15,30,0.05)":"1px solid transparent",transition:"all .5s cubic-bezier(.22,1,.36,1)"}}>
+      <a href="#" style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:36,height:36,borderRadius:10,background:"var(--blue)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 16px rgba(20,73,227,0.25)"}}><span style={{color:"#fff",fontFamily:"var(--font-h)",fontSize:".82rem",fontWeight:800}}>IF</span></div><span style={{fontFamily:"var(--font-h)",fontSize:"1.05rem",fontWeight:800,color:"var(--ink)"}}>IFIAAS</span></a>
+      <div className="nav-links-d" style={{display:"flex",alignItems:"center",gap:"2.2rem"}}>
+        {L.map(([l,h])=><a key={l} href={h} style={{fontFamily:"var(--font-b)",fontSize:".78rem",fontWeight:500,color:"var(--ink-4)",transition:"color .3s"}} onMouseEnter={e=>e.currentTarget.style.color="var(--blue)"} onMouseLeave={e=>e.currentTarget.style.color="var(--ink-4)"}>{l}</a>)}
+        <a href="https://wa.me/22967455462" target="_blank" rel="noreferrer" style={{background:"var(--blue)",color:"#fff",padding:".55rem 1.5rem",fontFamily:"var(--font-b)",fontSize:".76rem",fontWeight:600,borderRadius:50,transition:"all .3s",boxShadow:"0 4px 16px rgba(20,73,227,0.2)"}} onMouseEnter={e=>{e.currentTarget.style.background="var(--blue-deep)";e.currentTarget.style.transform="translateY(-2px)"}} onMouseLeave={e=>{e.currentTarget.style.background="var(--blue)";e.currentTarget.style.transform="translateY(0)"}}>Contacter →</a>
       </div>
+      <button className="hamburger" onClick={()=>setOpen(!open)} aria-label="Menu" style={{display:"none",background:"none",border:"none",flexDirection:"column",gap:5,padding:8,zIndex:950}}>{[0,1,2].map(i=><span key={i} style={{display:"block",width:20,height:2,background:open&&i===1?"transparent":"var(--ink)",borderRadius:2,transition:"all .3s",transform:open?(i===0?"rotate(45deg) translate(5px,5px)":i===2?"rotate(-45deg) translate(5px,-5px)":"none"):"none"}}/>)}</button>
+    </nav>
+    {open&&<div style={{position:"fixed",inset:0,zIndex:890,background:"rgba(242,245,250,0.96)",backdropFilter:"blur(30px)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"2rem",animation:"heroFade .25s ease"}}>{L.map(([l,h])=><a key={l} href={h} onClick={()=>setOpen(false)} style={{fontFamily:"var(--font-h)",fontSize:"clamp(2rem,7vw,3rem)",fontWeight:800,color:"var(--ink)",transition:"color .3s"}} onMouseEnter={e=>e.currentTarget.style.color="var(--blue)"} onMouseLeave={e=>e.currentTarget.style.color="var(--ink)"}>{l}</a>)}<a href="https://wa.me/22967455462" target="_blank" rel="noreferrer" onClick={()=>setOpen(false)} style={{marginTop:16,background:"var(--blue)",color:"#fff",padding:"1rem 2.5rem",fontFamily:"var(--font-b)",fontSize:".85rem",fontWeight:600,borderRadius:50}}>WhatsApp →</a></div>}
+  </>);
+}
 
-      <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.1fr .9fr", gap: "4rem", alignItems: "center", position: "relative", zIndex: 2 }}>
-        {/* LEFT */}
-        <div>
-          <div className="hero-force-visible" style={{ display: "flex", alignItems: "center", gap: ".8rem", marginBottom: "2.2rem", animation: "fadeUp .8s .1s both" }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)", animation: "pulse 2s infinite" }} />
-            <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.6rem,.8vw,.7rem)", letterSpacing: ".22em", textTransform: "uppercase", color: "var(--accent)" }}>Bénin · Innovation · Impact</span>
-          </div>
+/* ═══ HERO ═══ */
+function Hero(){
+  const words=["l'informatique","la finance","l'agriculture","GigaZone WiFi","la tontine digitale"];
+  const[typed,setTyped]=useState("");const wi=useRef(0),ci=useRef(0),del=useRef(false);
+  useEffect(()=>{let t;const run=()=>{const w=words[wi.current];if(!del.current){ci.current++;setTyped(w.slice(0,ci.current));if(ci.current===w.length){del.current=true;t=setTimeout(run,2400);return}}else{ci.current--;setTyped(w.slice(0,ci.current));if(ci.current===0){del.current=false;wi.current=(wi.current+1)%words.length}}t=setTimeout(run,del.current?40:85)};t=setTimeout(run,700);return()=>clearTimeout(t)},[]);
 
-          <h1 className="hero-force-visible" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(2.6rem,5.5vw,5.5rem)", lineHeight: 1.05, fontWeight: 600, marginBottom: "1.8rem", animation: "fadeUp .8s .25s both" }}>
-            Construire l'avenir<br />
-            par{" "}
-            <em style={{ fontStyle: "italic", color: "var(--gold2)" }}>
-              {typed}<span style={{ animation: "blink 1s infinite", color: "var(--accent)" }}>|</span>
-            </em>
-          </h1>
+  const cards=[
+    {icon:"📶",name:"GigaZone WiFi Pro",sub:"z.ifiaas.com",stat:"< 50K",statL:"FCFA pour démarrer",top:"5%",left:"2%",anim:"cardFloat1",dur:"7s",dl:"0s"},
+    {icon:"🏦",name:"ifiMoney — Tontine",sub:"money.ifiaas.com",stat:"100%",statL:"numérique & sécurisé",top:"40%",right:"2%",anim:"cardFloat2",dur:"8s",dl:"-2.5s"},
+    {icon:"💬",name:"ifiChat Live",sub:"chat.ifiaas.com",stat:"∞",statL:"temps réel",bottom:"8%",left:"10%",anim:"cardFloat3",dur:"9s",dl:"-5s"},
+  ];
 
-          <p className="hero-force-visible" style={{ fontSize: "clamp(.88rem,1.2vw,1rem)", lineHeight: 1.82, color: "var(--muted)", maxWidth: 460, marginBottom: "2.5rem", animation: "fadeUp .8s .4s both" }}>
-            IFIAAS crée des outils numériques concrets — WiFi rentable, tontine digitale, chat IA. Des solutions bâties depuis Zinvié, Bénin, pour l'Afrique et le monde.
-          </p>
-
-          <div className="hero-force-visible" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", animation: "fadeUp .8s .55s both" }}>
-            <a href="#plateformes"
-              style={{ background: "var(--green)", color: "var(--white)", padding: ".95rem 2rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.72rem,.85vw,.8rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)", transition: "background .3s, transform .2s" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "var(--green2)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "var(--green)"; e.currentTarget.style.transform = "translateY(0)"; }}>
-              Nos plateformes →
-            </a>
-            <a href="#fondateur"
-              style={{ background: "transparent", color: "var(--white)", padding: ".95rem 2rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.72rem,.85vw,.8rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", border: "1px solid var(--border)", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)", transition: "border-color .3s, color .3s" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--white)"; }}>
-              À propos
-            </a>
-          </div>
-
-          <div className="hero-stats hero-force-visible" style={{ display: "flex", gap: "2.5rem", marginTop: "3.5rem", paddingTop: "2rem", borderTop: "1px solid var(--border)", animation: "fadeUp .8s .7s both", flexWrap: "wrap" }}>
-            {[["3+", "Plateformes live"], ["3", "Secteurs clés"], ["∞", "Vision & projets"]].map(([n, l]) => (
-              <div key={l}>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(1.6rem,2.5vw,2rem)", color: "var(--accent)", lineHeight: 1 }}>{n}</div>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.55rem,.65vw,.62rem)", color: "var(--muted)", letterSpacing: ".1em", textTransform: "uppercase", marginTop: ".3rem" }}>{l}</div>
+  return(
+    <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",background:"var(--bg)"}}>
+      <div style={{position:"absolute",inset:0,zIndex:0,width:"100%",height:"100%",minHeight:"100vh"}}><HeroCanvas/><div style={{position:"absolute",bottom:0,left:0,right:0,height:"25%",background:"linear-gradient(to top, var(--bg), transparent)",pointerEvents:"none",zIndex:1}}/></div>
+      <div style={{position:"relative",zIndex:2,padding:"clamp(8rem,14vw,11rem) var(--px) clamp(4rem,8vw,6rem)"}}>
+        <div className="bento-hero" style={{display:"grid",gridTemplateColumns:"1fr 0.82fr",gap:"clamp(1.5rem,3vw,2.5rem)",alignItems:"stretch"}}>
+          <div style={{display:"flex",flexDirection:"column",justifyContent:"center"}}>
+            <div style={{animation:"heroSlideUp .9s .1s both"}} className="hero-fv">
+              <div style={{display:"inline-flex",alignItems:"center",gap:8,marginBottom:28,padding:".45rem 1rem .45rem .6rem",background:"rgba(255,255,255,0.85)",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",borderRadius:50,boxShadow:"0 2px 16px rgba(10,15,30,0.06)",border:"1px solid rgba(255,255,255,0.6)"}}>
+                <div style={{width:9,height:9,borderRadius:"50%",background:"var(--mint)",boxShadow:"0 0 10px rgba(0,212,170,0.6)"}}/>
+                <span style={{fontFamily:"var(--font-m)",fontSize:".62rem",letterSpacing:".16em",textTransform:"uppercase",color:"var(--ink-3)",fontWeight:500}}>Zinvié, Bénin · En ligne</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* RIGHT VISUAL */}
-        <div className="hero-right" style={{ position: "relative", height: "min(520px,50vw)" }}>
-          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "min(280px,26vw)", height: "min(280px,26vw)", borderRadius: "50%", background: "radial-gradient(ellipse at 40% 35%,rgba(0,245,160,.15) 0%,rgba(13,110,63,.08) 50%,transparent 70%)", border: "1px solid rgba(0,245,160,.12)", animation: "float 8s ease-in-out infinite", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.8rem,3vw,2.8rem)", color: "rgba(0,245,160,.3)", fontStyle: "italic" }}>IFI</span>
-          </div>
-          {[[340, "rgba(0,245,160,.06)", 30], [430, "rgba(212,168,67,.05)", 50]].map(([s, c, d]) => (
-            <div key={s} style={{ position: "absolute", top: "50%", left: "50%", width: s, height: s, borderRadius: "50%", border: `1px dashed ${c}`, animation: `spinC ${d}s linear infinite`, marginTop: -s / 2, marginLeft: -s / 2 }} />
-          ))}
-          {[
-            { icon: "📶", label: "GigaZone WiFi Pro", sub: "z.ifiaas.com", top: "4%", left: "-5%" , delay: "0s" },
-            { icon: "🏦", label: "ifiMoney — Tontine", sub: "money.ifiaas.com", top: "37%", right: "-8%", delay: "-2.5s" },
-            { icon: "💬", label: "ifiChat Live", sub: "chat.ifiaas.com", bottom: "10%", left: "7%", delay: "-5s" },
-          ].map((c) => (
-            <div key={c.sub} style={{ position: "absolute", top: c.top, left: c.left, right: c.right, bottom: c.bottom, background: "rgba(13,16,24,.88)", backdropFilter: "blur(20px)", border: "1px solid var(--border)", borderRadius: 12, padding: "1rem 1.3rem", animation: `float 7s ease-in-out infinite`, animationDelay: c.delay, minWidth: 155 }}>
-              <div style={{ fontSize: "1.3rem", marginBottom: ".4rem" }}>{c.icon}</div>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", color: "var(--accent)", letterSpacing: ".1em", marginBottom: ".2rem" }}>{c.label}</div>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".72rem", color: "var(--muted)" }}>{c.sub}</div>
             </div>
-          ))}
-          <div style={{ position: "absolute", top: 0, right: 0, width: 55, height: 55, borderTop: "2px solid rgba(0,245,160,.2)", borderRight: "2px solid rgba(0,245,160,.2)" }} />
-          <div style={{ position: "absolute", bottom: 0, left: 0, width: 55, height: 55, borderBottom: "2px solid rgba(212,168,67,.2)", borderLeft: "2px solid rgba(212,168,67,.2)" }} />
+            <h1 className="hero-fv" style={{fontFamily:"var(--font-h)",fontSize:"clamp(2.8rem,6.5vw,6rem)",lineHeight:1.02,fontWeight:800,color:"var(--ink)",letterSpacing:"-.035em",marginBottom:"clamp(1.2rem,3vw,2rem)",animation:"heroSlideUp .9s .22s both"}}>Construire<br/>l'avenir par<br/><span style={{color:"var(--blue)"}}>{typed}<span style={{animation:"blink 1s infinite",color:"var(--blue-sky)"}}>_</span></span></h1>
+            <p className="hero-fv" style={{fontFamily:"var(--font-b)",fontSize:"clamp(.92rem,1.15vw,1.05rem)",lineHeight:1.85,color:"var(--ink-4)",maxWidth:460,marginBottom:"clamp(2rem,4vw,3rem)",animation:"heroSlideUp .9s .36s both"}}>IFIAAS crée des outils numériques concrets — WiFi rentable, tontine digitale, chat IA. Des solutions bâties depuis Zinvié, Bénin, pour l'Afrique et le monde.</p>
+            <div className="cta-btns hero-fv" style={{display:"flex",gap:".8rem",flexWrap:"wrap",animation:"heroSlideUp .9s .48s both"}}>
+              <a href="#plateformes" style={{background:"var(--blue)",color:"#fff",padding:".95rem 2.2rem",fontFamily:"var(--font-b)",fontSize:".82rem",fontWeight:600,borderRadius:50,transition:"all .3s",boxShadow:"0 6px 24px rgba(20,73,227,0.22)",display:"inline-flex",alignItems:"center",gap:8}} onMouseEnter={e=>{e.currentTarget.style.background="var(--blue-deep)";e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.boxShadow="0 10px 32px rgba(20,73,227,0.3)"}} onMouseLeave={e=>{e.currentTarget.style.background="var(--blue)";e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 6px 24px rgba(20,73,227,0.22)"}}>Découvrir nos plateformes <span style={{fontSize:"1.1rem"}}>→</span></a>
+              <a href="#fondateur" style={{background:"rgba(255,255,255,0.85)",backdropFilter:"blur(8px)",color:"var(--ink-2)",padding:".95rem 2.2rem",fontFamily:"var(--font-b)",fontSize:".82rem",fontWeight:600,borderRadius:50,border:"1.5px solid rgba(255,255,255,0.7)",transition:"all .3s",display:"inline-flex",alignItems:"center",gap:8}} onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--blue)";e.currentTarget.style.color="var(--blue)";e.currentTarget.style.transform="translateY(-3px)"}} onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.7)";e.currentTarget.style.color="var(--ink-2)";e.currentTarget.style.transform="translateY(0)"}}>Le fondateur</a>
+            </div>
+            <div className="hero-stats-row hero-fv" style={{display:"flex",gap:"clamp(2rem,4vw,3.5rem)",marginTop:"clamp(2.5rem,5vw,4rem)",paddingTop:"clamp(1.5rem,3vw,2rem)",borderTop:"1.5px solid rgba(200,205,224,0.5)",animation:"heroSlideUp .9s .6s both"}}>
+              {[["3+","Plateformes\nlive"],["3","Secteurs\nclés"],["∞","Vision &\nprojets"]].map(([n,l])=><div key={l}><div style={{fontFamily:"var(--font-h)",fontSize:"clamp(2rem,3.5vw,2.8rem)",fontWeight:800,color:"var(--blue)",lineHeight:1}}>{n}</div><div style={{fontFamily:"var(--font-m)",fontSize:".58rem",color:"var(--ink-5)",letterSpacing:".1em",textTransform:"uppercase",marginTop:6,whiteSpace:"pre-line",lineHeight:1.4}}>{l}</div></div>)}
+            </div>
+          </div>
+          <div className="hero-visual-wrap" style={{position:"relative",minHeight:"clamp(420px,48vw,600px)",overflow:"hidden"}}>
+            {cards.map(c=>(<div key={c.sub} style={{position:"absolute",top:c.top,left:c.left,right:c.right,bottom:c.bottom,background:"rgba(255,255,255,0.88)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",borderRadius:"var(--r-lg)",padding:"1.3rem 1.6rem",boxShadow:"0 12px 40px rgba(10,15,30,0.08), inset 0 1px 0 rgba(255,255,255,0.8)",border:"1px solid rgba(255,255,255,0.6)",animation:`${c.anim} ${c.dur} ease-in-out infinite`,animationDelay:c.dl,minWidth:175,zIndex:5,transition:"transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s"}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-8px) scale(1.03)";e.currentTarget.style.boxShadow="0 20px 56px rgba(10,15,30,0.12)"}} onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="0 12px 40px rgba(10,15,30,0.08)"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}><span style={{fontSize:"1.4rem"}}>{c.icon}</span><div style={{width:7,height:7,borderRadius:"50%",background:"var(--mint)",boxShadow:"0 0 6px rgba(0,212,170,0.4)"}}/></div>
+              <div style={{fontFamily:"var(--font-b)",fontSize:".78rem",fontWeight:700,color:"var(--ink)",marginBottom:2}}>{c.name}</div>
+              <div style={{fontFamily:"var(--font-m)",fontSize:".6rem",color:"var(--ink-5)",marginBottom:12}}>{c.sub}</div>
+              <div style={{borderTop:"1px solid rgba(10,15,30,0.06)",paddingTop:10,display:"flex",alignItems:"baseline",gap:6}}>
+                <span style={{fontFamily:"var(--font-h)",fontSize:"1.3rem",fontWeight:800,color:"var(--blue)"}}>{c.stat}</span>
+                <span style={{fontFamily:"var(--font-m)",fontSize:".52rem",color:"var(--ink-5)"}}>{c.statL}</span>
+              </div>
+            </div>))}
+            <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:3,pointerEvents:"none"}}><div style={{background:"rgba(255,255,255,0.55)",backdropFilter:"blur(16px)",borderRadius:100,padding:"1.2rem 2.8rem",border:"1px solid rgba(255,255,255,0.5)",boxShadow:"0 8px 32px rgba(20,73,227,0.08)"}}><span style={{fontFamily:"var(--font-h)",fontSize:"clamp(2rem,3.5vw,3rem)",fontWeight:800,color:"var(--blue)",opacity:.7}}>IFI</span></div></div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-/* ═══════════════════════════════════════════
-   TICKER
-═══════════════════════════════════════════ */
-function Ticker() {
-  const items = ["GigaZone WiFi Pro", "ifiMoney Tontine", "ifiChat Live", "Marketplace Crypto", "WiFi < 50 000 FCFA", "100% Légal ARCEP", "Finance Numérique", "Agriculture Tech", "Zinvié · Bénin · Monde"];
-  return (
-    <div style={{ background: "var(--green)", padding: ".9rem 0", overflow: "hidden", whiteSpace: "nowrap", borderTop: "1px solid rgba(0,245,160,.2)", borderBottom: "1px solid rgba(0,245,160,.2)" }}>
-      <div style={{ display: "inline-flex", gap: "3rem", animation: "ticker 30s linear infinite" }}>
-        {[...items, ...items].map((t, i) => (
-          <span key={i} style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.65rem,.75vw,.72rem)", letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(240,237,230,.88)", display: "flex", alignItems: "center", gap: "1.5rem" }}>
-            {t}<span style={{ color: "var(--gold2)", fontSize: ".4rem" }}>◆</span>
-          </span>
-        ))}
+function Ticker(){const items=["GigaZone WiFi Pro","ifiMoney Tontine","ifiChat Live","Marketplace Crypto","WiFi < 50 000 FCFA","100% Légal ARCEP","Finance Numérique","Agriculture Tech","Zinvié · Bénin"];return(<div style={{background:"var(--ink)",padding:".85rem 0",overflow:"hidden",whiteSpace:"nowrap"}}><div style={{display:"inline-flex",gap:"2.5rem",animation:"ticker 40s linear infinite"}}>{[...items,...items,...items].map((t,i)=>(<span key={i} style={{fontFamily:"var(--font-m)",fontSize:".62rem",letterSpacing:".18em",textTransform:"uppercase",color:"rgba(255,255,255,0.55)",display:"flex",alignItems:"center",gap:"1.8rem"}}>{t}<span style={{width:4,height:4,borderRadius:"50%",background:"var(--blue-bright)",display:"inline-block"}}/></span>))}</div></div>)}
+
+function Platforms(){
+  const P=[
+    {icon:"📶",name:"GigaZone WiFi Pro",domain:"z.ifiaas.com",badge:"En ligne",tagline:"Lancez votre WifiZone au Bénin",color:"var(--blue)",gradient:"linear-gradient(135deg,#1449E3,#5B8DEF)",desc:"Transformez n'importe quel routeur en hotspot WiFi rentable. Système de tickets, parrainage intégré, 100% légal ARCEP Bénin. Installation gratuite par les techniciens IFIAAS. Démarrez avec moins de 50 000 FCFA et encaissez 100% de vos ventes.",features:["100% légal ARCEP Bénin","Installation gratuite","100% de vos bénéfices","Système de parrainage","Disponible partout au Bénin"],pricing:[["1h Ultra (50Mbps)","100 FCFA"],["3h Ultra","200 FCFA"],["1 Jour Nav.","200 FCFA"],["7 Jours Nav.","900 FCFA"],["30 Jours Nav.","3 000 FCFA"],["VPN intégré","inclus"]],url:"https://z.ifiaas.com"},
+    {icon:"🏦",name:"ifiMoney",domain:"money.ifiaas.com",badge:"En ligne",tagline:"Tontine numérique sécurisée",color:"var(--amber)",gradient:"linear-gradient(135deg,#E08800,#FFB020)",desc:"ifiMoney digitalise la tontine africaine. Gérez vos groupes d'épargne collective en ligne — cotisations automatisées, tours de paiement transparents, suivi en temps réel.",features:["Tontine 100% numérique","Gestion de groupes d'épargne","Suivi en temps réel","Transparence totale","Accessible partout sur mobile"],url:"https://money.ifiaas.com"},
+    {icon:"💬",name:"ifiChat",domain:"chat.ifiaas.com",badge:"En ligne",tagline:"Chat Live × Telegram",color:"var(--mint)",gradient:"linear-gradient(135deg,#00A888,#00D4AA)",desc:"ifiChat est une interface de chat en temps réel connectée nativement à Telegram. Communiquez avec votre audience, gérez votre support client et animez votre communauté.",features:["Chat live en temps réel","Intégration Telegram native","Support client intégré","Communauté connectée","Tous appareils"],url:"https://chat.ifiaas.com"}
+  ];
+  const[active,setActive]=useState(0);const p=P[active];
+  return(
+    <section id="plateformes" style={{padding:"var(--spy) var(--px)",background:"var(--bg-warm)"}}>
+      <div className="rv" style={{marginBottom:"clamp(2.5rem,5vw,4rem)"}}><Label>Nos Plateformes</Label><h2 style={{fontFamily:"var(--font-h)",fontSize:"clamp(2.2rem,4.5vw,4rem)",fontWeight:800,lineHeight:1.05,color:"var(--ink)",letterSpacing:"-.03em"}}>Trois produits,<br/>déjà <span style={{color:"var(--blue)"}}>en ligne</span></h2></div>
+      <div className="rv d1 bento-plat" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"clamp(1.5rem,3vw,2rem)"}}>
+        {P.map((pl,i)=>(<button key={i} onClick={()=>setActive(i)} style={{background:active===i?"var(--white)":"transparent",border:active===i?"1.5px solid rgba(10,15,30,0.06)":"1.5px solid transparent",borderRadius:"var(--r-lg)",padding:"clamp(1rem,2vw,1.5rem)",display:"flex",alignItems:"center",gap:12,transition:"all .35s cubic-bezier(.22,1,.36,1)",boxShadow:active===i?"0 8px 32px rgba(10,15,30,0.06)":"none",transform:active===i?"translateY(-2px)":"translateY(0)"}}><div style={{width:46,height:46,borderRadius:14,background:pl.gradient,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{pl.icon}</div><div style={{textAlign:"left"}}><div style={{fontFamily:"var(--font-b)",fontSize:"clamp(.76rem,.9vw,.85rem)",fontWeight:700,color:active===i?"var(--ink)":"var(--ink-4)"}}>{pl.name}</div><div style={{fontFamily:"var(--font-m)",fontSize:".58rem",color:"var(--ink-5)",marginTop:2}}>{pl.domain}</div></div></button>))}
+      </div>
+      <div className="rv d2" key={active} style={{background:"var(--white)",borderRadius:"var(--r-xl)",boxShadow:"0 12px 48px rgba(10,15,30,0.06)",border:"1px solid rgba(10,15,30,0.04)",overflow:"hidden",animation:"scaleReveal .45s ease both"}}>
+        <div style={{background:p.gradient,padding:"clamp(1.5rem,3vw,2.5rem) clamp(2rem,4vw,3rem)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"1rem"}}><div style={{display:"flex",alignItems:"center",gap:16}}><span style={{fontSize:"clamp(2rem,4vw,2.8rem)"}}>{p.icon}</span><div><h3 style={{fontFamily:"var(--font-h)",fontSize:"clamp(1.5rem,2.5vw,2rem)",fontWeight:800,color:"#fff"}}>{p.name}</h3><div style={{fontFamily:"var(--font-m)",fontSize:".62rem",color:"rgba(255,255,255,0.7)",marginTop:3}}>{p.tagline}</div></div></div><div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:8,height:8,borderRadius:"50%",background:"#22c55e",boxShadow:"0 0 8px rgba(34,197,94,0.6)"}}/><span style={{fontFamily:"var(--font-m)",fontSize:".6rem",color:"rgba(255,255,255,0.8)",letterSpacing:".08em",textTransform:"uppercase"}}>{p.badge}</span></div></div>
+        <div style={{padding:"clamp(2rem,4vw,3rem)",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(2rem,4vw,3rem)"}} className="bento-plat-detail">
+          <div><p style={{fontSize:"clamp(.88rem,1.05vw,.96rem)",color:"var(--ink-3)",lineHeight:1.9,marginBottom:"2rem"}}>{p.desc}</p><a href={p.url} target="_blank" rel="noreferrer" style={{display:"inline-flex",alignItems:"center",gap:8,background:p.gradient,color:"#fff",padding:".85rem 2rem",fontFamily:"var(--font-b)",fontSize:".8rem",fontWeight:600,borderRadius:50,transition:"all .3s"}} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-3px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>Visiter {p.domain} ↗</a></div>
+          <div>
+            <div style={{fontFamily:"var(--font-m)",fontSize:".58rem",letterSpacing:".2em",textTransform:"uppercase",color:"var(--ink-5)",marginBottom:16,fontWeight:600}}>Points clés</div>
+            <div className="plat-features" style={{display:"grid",gap:8}}>{p.features.map((f,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:".75rem 1rem",background:"var(--bg)",borderRadius:"var(--r-md)",transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.background="var(--blue-ghost)";e.currentTarget.style.paddingLeft="1.3rem"}} onMouseLeave={e=>{e.currentTarget.style.background="var(--bg)";e.currentTarget.style.paddingLeft="1rem"}}><div style={{width:22,height:22,borderRadius:7,background:p.gradient,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{color:"#fff",fontSize:".65rem",fontWeight:700}}>✓</span></div><span style={{fontSize:".84rem",color:"var(--ink-3)",fontWeight:500}}>{f}</span></div>))}</div>
+            {p.pricing&&(<div style={{marginTop:24}}><div style={{fontFamily:"var(--font-m)",fontSize:".58rem",letterSpacing:".2em",textTransform:"uppercase",color:"var(--ink-5)",marginBottom:12,fontWeight:600}}>Forfaits</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}} className="plat-features">{p.pricing.map(([d,v])=>(<div key={d} style={{padding:".7rem .9rem",background:"var(--bg)",borderRadius:"var(--r-sm)",border:"1px solid rgba(10,15,30,0.04)"}}><div style={{fontFamily:"var(--font-m)",fontSize:".52rem",color:"var(--ink-5)",marginBottom:4}}>{d}</div><div style={{fontFamily:"var(--font-h)",fontSize:".92rem",color:"var(--blue)",fontWeight:700}}>{v}</div></div>))}</div></div>)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Domains(){const D=[{num:"01",icon:"💻",title:"Informatique",desc:"Développement fullstack, architecture système, applications web & mobile. Des solutions robustes pour les entreprises africaines et internationales.",color:"var(--blue)",bg:"var(--blue-ghost)"},{num:"02",icon:"📊",title:"Finance & Épargne",desc:"Finance digitale et tontine numérique. ifiMoney modernise l'épargne collective, une marketplace crypto se prépare en coulisses.",color:"var(--amber)",bg:"rgba(255,176,32,0.08)"},{num:"03",icon:"🌱",title:"Agriculture Tech",desc:"Digitalisation des pratiques agricoles, outils de monitoring et de gestion. La tech au service de la productivité agricole.",color:"var(--mint)",bg:"rgba(0,212,170,0.08)"}];
+  return(<section id="domaines" style={{padding:"var(--spy) var(--px)",background:"var(--bg)"}}><div className="bento-domains" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(2rem,5vw,5rem)",alignItems:"center"}}><div><div className="rv"><Label>Expertise</Label></div><h2 className="rv" style={{fontFamily:"var(--font-h)",fontSize:"clamp(2.2rem,4.5vw,4rem)",fontWeight:800,lineHeight:1.05,color:"var(--ink)",letterSpacing:"-.03em",marginBottom:"clamp(2rem,4vw,3rem)"}}>Trois piliers,<br/><span style={{color:"var(--blue)"}}>une vision</span></h2>{D.map((d,i)=>(<div key={d.num} className={`rv d${i+1}`} style={{padding:"1.8rem 0",borderBottom:i<2?"1.5px solid var(--ink-6)":"none",display:"flex",gap:"clamp(1rem,2vw,1.5rem)",alignItems:"flex-start"}} onMouseEnter={e=>{const el=e.currentTarget.firstChild;if(el)el.style.transform="scale(1.12) rotate(-3deg)"}} onMouseLeave={e=>{const el=e.currentTarget.firstChild;if(el)el.style.transform="scale(1)"}}>
+    <div className="di" style={{width:52,height:52,borderRadius:16,background:d.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0,transition:"transform .4s cubic-bezier(.22,1,.36,1)"}}>{d.icon}</div>
+    <div><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}><span style={{fontFamily:"var(--font-m)",fontSize:".58rem",color:d.color,fontWeight:600}}>{d.num}</span><span style={{fontFamily:"var(--font-h)",fontSize:"clamp(1.15rem,1.6vw,1.4rem)",fontWeight:700,color:"var(--ink)"}}>{d.title}</span></div><p style={{fontSize:".86rem",color:"var(--ink-4)",lineHeight:1.78}}>{d.desc}</p></div></div>))}</div>
+    <div className="domain-vis rv" style={{position:"relative",aspectRatio:"4/5",maxHeight:520}}><div style={{position:"absolute",inset:0,background:"var(--white)",borderRadius:"var(--r-xl)",boxShadow:"0 12px 48px rgba(10,15,30,0.05)",border:"1px solid rgba(10,15,30,0.04)",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{fontFamily:"var(--font-h)",fontSize:"clamp(7rem,14vw,14rem)",fontWeight:800,color:"var(--bg)",lineHeight:1,userSelect:"none",position:"absolute"}}>IFI</div><svg width="280" height="280" viewBox="0 0 280 280" fill="none" style={{position:"relative",zIndex:2,opacity:.7}}><circle cx="100" cy="140" r="80" fill="var(--blue)" fillOpacity="0.08" stroke="var(--blue)" strokeOpacity="0.15" strokeWidth="1.5"/><circle cx="180" cy="110" r="65" fill="var(--amber)" fillOpacity="0.08" stroke="var(--amber)" strokeOpacity="0.15" strokeWidth="1.5"/><circle cx="155" cy="185" r="55" fill="var(--mint)" fillOpacity="0.08" stroke="var(--mint)" strokeOpacity="0.15" strokeWidth="1.5"/><text x="80" y="145" fontFamily="var(--font-m)" fontSize="8" fill="var(--blue)" opacity=".5" letterSpacing="2">INFO</text><text x="162" y="115" fontFamily="var(--font-m)" fontSize="8" fill="var(--amber)" opacity=".5" letterSpacing="2">FIN</text><text x="138" y="190" fontFamily="var(--font-m)" fontSize="8" fill="var(--mint)" opacity=".5" letterSpacing="2">AGRI</text></svg><div style={{position:"absolute",bottom:24,left:24,fontFamily:"var(--font-m)",fontSize:".55rem",color:"var(--ink-5)",letterSpacing:".2em",opacity:.4}}>ZINVIÉ · BÉNIN · 2026</div></div></div></div></section>);
+}
+
+function Projects(){const P=[{badge:"En dev",accent:"var(--blue)",icon:"🔗",name:"Marketplace Crypto",desc:"Achat, vente et échange d'actifs numériques. Conçue pour l'adoption de masse en Afrique et au-delà.",tags:["Blockchain","Crypto","DeFi","Web3"]},{badge:"Bientôt",accent:"var(--amber)",icon:"📡",name:"WiFi Zone Manager Pro",desc:"Analytics temps réel, facturation auto, gestion multi-sites. Scalez votre business WiFi.",tags:["IoT","SaaS","Analytics"]},{badge:"À venir",accent:"var(--ink-5)",icon:"🚀",name:"Et bien plus…",desc:"L'écosystème IFIAAS grandit. Nouveaux outils, nouvelles opportunités.",tags:["Innovation","???"]}];
+  return(<section id="projets" style={{padding:"var(--spy) var(--px)",background:"var(--bg-warm)"}}><div className="rv" style={{marginBottom:"clamp(2.5rem,5vw,4rem)"}}><Label color="var(--violet)">Roadmap</Label><h2 style={{fontFamily:"var(--font-h)",fontSize:"clamp(2.2rem,4.5vw,4rem)",fontWeight:800,lineHeight:1.05,color:"var(--ink)",letterSpacing:"-.03em"}}>Projets à <span style={{color:"var(--violet)"}}>venir</span></h2></div>
+    <div className="rv d1 bento-projects" style={{display:"grid",gridTemplateColumns:"1.5fr 1fr",gap:16}}><div style={{background:"linear-gradient(145deg, var(--blue-ghost) 0%, var(--white) 100%)",borderRadius:"var(--r-xl)",padding:"clamp(2rem,4vw,3.5rem)",border:"2px solid var(--blue-pale)",position:"relative",overflow:"hidden",transition:"transform .4s"}} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-4px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}><div style={{position:"absolute",top:-30,right:-30,width:180,height:180,borderRadius:"50%",background:"var(--blue-pale)",opacity:.3,pointerEvents:"none"}}/><Pill color="var(--blue)" bg="var(--blue-pale)">{P[0].badge}</Pill><div style={{display:"flex",alignItems:"center",gap:12,margin:"1.5rem 0 1rem"}}><span style={{fontSize:"2rem"}}>{P[0].icon}</span><h3 style={{fontFamily:"var(--font-h)",fontSize:"clamp(1.6rem,2.8vw,2.3rem)",fontWeight:800,color:"var(--ink)"}}>{P[0].name}</h3></div><p style={{fontSize:".92rem",color:"var(--ink-4)",lineHeight:1.82,marginBottom:24,maxWidth:420}}>{P[0].desc}</p><div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{P[0].tags.map(t=><Pill key={t}>{t}</Pill>)}</div></div>
+      <div style={{display:"grid",gap:16}}>{P.slice(1).map(p=>(<div key={p.name} style={{background:"var(--white)",borderRadius:"var(--r-xl)",padding:"clamp(1.5rem,3vw,2.2rem)",border:"1px solid rgba(10,15,30,0.04)",boxShadow:"0 4px 16px rgba(10,15,30,0.03)",transition:"transform .35s"}} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-3px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}><span style={{fontSize:"1.4rem"}}>{p.icon}</span><Pill color={p.accent} bg={p.accent==="var(--ink-5)"?"var(--bg)":"rgba(255,176,32,0.1)"}>{p.badge}</Pill></div><h4 style={{fontFamily:"var(--font-h)",fontSize:"clamp(1.2rem,1.8vw,1.5rem)",fontWeight:700,color:"var(--ink)",marginBottom:8}}>{p.name}</h4><p style={{fontSize:".84rem",color:"var(--ink-4)",lineHeight:1.75,marginBottom:14}}>{p.desc}</p><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{p.tags.map(t=><span key={t} style={{fontFamily:"var(--font-m)",fontSize:".55rem",padding:".25rem .7rem",background:"var(--bg)",color:"var(--ink-5)",borderRadius:50}}>{t}</span>)}</div></div>))}</div></div></section>);
+}
+
+function Founder(){const sk=["Fullstack Dev","Design Graphique","Finance Digitale","Agri Tech","UI/UX","Entrepreneuriat","WiFi & Réseaux","Architecture Sys."];
+  return(<section id="fondateur" style={{padding:"var(--spy) var(--px)",background:"var(--bg)",position:"relative",overflow:"hidden"}}><div style={{position:"absolute",bottom:-200,right:-200,width:500,height:500,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(255,176,32,0.06),transparent 65%)",pointerEvents:"none"}}/>
+    <div className="bento-founder" style={{display:"grid",gridTemplateColumns:"0.85fr 1.15fr",gap:"clamp(2rem,5vw,5rem)",alignItems:"center"}}>
+      <div className="rv" style={{position:"relative"}}><div style={{aspectRatio:"3/4",background:"var(--white)",borderRadius:"var(--r-xl)",boxShadow:"0 16px 56px rgba(10,15,30,0.07)",border:"1px solid rgba(10,15,30,0.04)",overflow:"hidden",position:"relative",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{position:"absolute",inset:0,background:"linear-gradient(160deg, var(--blue-ghost), var(--bg-warm) 50%, rgba(255,176,32,0.05))"}}><svg width="100%" height="100%" viewBox="0 0 300 400" fill="none" style={{position:"absolute",inset:0,opacity:.35}}><circle cx="150" cy="160" r="60" stroke="var(--blue)" strokeWidth="1" strokeDasharray="4 4"/><circle cx="150" cy="160" r="90" stroke="var(--blue-sky)" strokeWidth=".5" strokeDasharray="8 8"/><circle cx="150" cy="160" r="120" stroke="var(--blue-pale)" strokeWidth=".5"/></svg></div><div style={{textAlign:"center",position:"relative",zIndex:2}}><div style={{fontFamily:"var(--font-h)",fontSize:"clamp(5rem,12vw,8rem)",fontWeight:800,background:"linear-gradient(135deg, var(--blue), var(--blue-bright))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",lineHeight:1}}>AS</div><div style={{fontFamily:"var(--font-m)",fontSize:".6rem",letterSpacing:".25em",textTransform:"uppercase",color:"var(--ink-5)",marginTop:12}}>Armel Sangan</div></div></div><div style={{position:"absolute",bottom:20,left:"50%",transform:"translateX(-50%)",background:"var(--white)",padding:".6rem 1.4rem",borderRadius:50,boxShadow:"0 8px 28px rgba(10,15,30,0.1)",border:"1px solid rgba(10,15,30,0.04)",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:8}}><div style={{width:8,height:8,borderRadius:"50%",background:"var(--blue)"}}/><span style={{fontFamily:"var(--font-b)",fontSize:".72rem",fontWeight:600,color:"var(--ink-2)"}}>Promoteur & CEO</span></div></div>
+      <div><div className="rv"><Label color="var(--amber)">Fondateur</Label></div><h2 className="rv" style={{fontFamily:"var(--font-h)",fontSize:"clamp(2.5rem,5vw,4.5rem)",fontWeight:800,lineHeight:1.02,color:"var(--ink)",letterSpacing:"-.035em",marginBottom:8}}>Armel<br/><span style={{color:"var(--amber)"}}>SANGAN</span></h2><div className="rv" style={{fontFamily:"var(--font-m)",fontSize:".65rem",letterSpacing:".18em",textTransform:"uppercase",color:"var(--blue)",marginBottom:28,fontWeight:600}}>Développeur · Designer · Entrepreneur</div><p className="rv" style={{fontSize:"clamp(.9rem,1.1vw,1rem)",color:"var(--ink-4)",lineHeight:1.9,marginBottom:28,maxWidth:520}}>Armel SANGAN est le promoteur et fondateur d'IFIAAS. Développeur fullstack et designer graphique passionné, il a conçu GigaZone WiFi Pro, ifiMoney et ifiChat — trois produits déjà actifs au Bénin. Sa mission : bâtir l'infrastructure numérique africaine, un outil concret à la fois.</p>
+        <div className="rv" style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:28}}>{sk.map(s=>(<span key={s} style={{fontFamily:"var(--font-m)",fontSize:".6rem",padding:".42rem 1rem",background:"var(--white)",border:"1.5px solid var(--ink-6)",color:"var(--ink-4)",borderRadius:50,fontWeight:500,transition:"all .3s",cursor:"default"}} onMouseEnter={e=>{e.currentTarget.style.background="var(--blue)";e.currentTarget.style.color="#fff";e.currentTarget.style.borderColor="var(--blue)";e.currentTarget.style.transform="translateY(-2px)"}} onMouseLeave={e=>{e.currentTarget.style.background="var(--white)";e.currentTarget.style.color="var(--ink-4)";e.currentTarget.style.borderColor="var(--ink-6)";e.currentTarget.style.transform="translateY(0)"}}>{s}</span>))}</div>
+        <div className="rv" style={{background:"var(--white)",borderRadius:"var(--r-lg)",padding:"clamp(1.2rem,2.5vw,1.8rem) clamp(1.5rem,3vw,2rem)",boxShadow:"0 4px 20px rgba(10,15,30,0.04)",border:"1px solid rgba(10,15,30,0.04)",marginBottom:24}}>{[["📱","WhatsApp","+229 67 45 54 62","https://wa.me/22967455462"],["📺","YouTube","@ifiaas","https://youtube.com/@ifiaas"],["✉️","Email","contact@ifiaas.com","mailto:contact@ifiaas.com"],["📍","Adresse","Zinvié, Bénin",null]].map(([ic,lb,vl,hr])=>(<div key={lb} style={{display:"flex",alignItems:"center",gap:14,padding:".55rem 0",borderBottom:"1px solid var(--bg)"}}><span style={{fontSize:".9rem"}}>{ic}</span><span style={{fontFamily:"var(--font-m)",fontSize:".58rem",color:"var(--ink-5)",minWidth:60,fontWeight:500}}>{lb}</span>{hr?<a href={hr} target="_blank" rel="noreferrer" style={{fontFamily:"var(--font-b)",fontSize:".82rem",color:"var(--blue)",fontWeight:500,transition:"color .3s"}} onMouseEnter={e=>e.currentTarget.style.color="var(--blue-deep)"} onMouseLeave={e=>e.currentTarget.style.color="var(--blue)"}>{vl}</a>:<span style={{fontFamily:"var(--font-b)",fontSize:".82rem",color:"var(--ink-3)",fontWeight:500}}>{vl}</span>}</div>))}</div>
+        <div className="rv" style={{display:"flex",gap:10,flexWrap:"wrap"}}>{[["📱 WhatsApp","https://wa.me/22967455462","#25d366"],["▶ YouTube","https://youtube.com/@ifiaas","#FF0000"]].map(([l,u,bg])=>(<a key={l} href={u} target="_blank" rel="noreferrer" style={{display:"flex",alignItems:"center",gap:8,background:bg,color:"#fff",padding:".82rem 1.8rem",fontFamily:"var(--font-b)",fontSize:".78rem",fontWeight:600,borderRadius:50,transition:"all .3s",boxShadow:`0 4px 16px ${bg}44`}} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-3px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>{l}</a>))}</div>
       </div>
     </div>
-  );
+  </section>);
 }
 
-/* ═══════════════════════════════════════════
-   PLATFORMS
-═══════════════════════════════════════════ */
-function Platforms() {
-  const isMobile = useIsMobile();
-  const platforms = [
-    {
-      icon: "📶", domain: "z.ifiaas.com", name: "GigaZone WiFi Pro",
-      badge: "🟢 En ligne", tagline: "Lancez votre WifiZone au Bénin",
-      color: "var(--accent)",
-      desc: "Transformez n'importe quel routeur en hotspot WiFi rentable. Système de tickets, parrainage intégré, 100% légal ARCEP Bénin. Installation gratuite par les techniciens IFIAAS. Démarrez avec moins de 50 000 FCFA et encaissez 100% de vos ventes.",
-      highlights: ["100% légal — autorisé ARCEP Bénin", "Installation gratuite par nos techniciens", "Vous gardez 100% de vos bénéfices", "Système de parrainage & commissions", "Disponible dans tout le Bénin"],
-      extra: { title: "Exemples de forfaits", items: [["1h Ultra (50Mbps)", "100 FCFA"], ["3h Ultra", "200 FCFA"], ["1 Jour Nav.", "200 FCFA"], ["7 Jours Nav.", "900 FCFA"], ["30 Jours Nav.", "3 000 FCFA"], ["VPN intégré", "inclus"]] },
-      url: "https://z.ifiaas.com"
-    },
-    {
-      icon: "🏦", domain: "money.ifiaas.com", name: "ifiMoney",
-      badge: "🟢 En ligne", tagline: "Tontine numérique sécurisée",
-      color: "var(--gold2)",
-      desc: "ifiMoney digitalise la tontine africaine. Gérez vos groupes d'épargne collective en ligne — cotisations automatisées, tours de paiement transparents, suivi en temps réel. La confiance de la tontine traditionnelle, avec la sécurité du numérique.",
-      highlights: ["Tontine 100% numérique & sécurisée", "Gestion de groupes d'épargne", "Suivi en temps réel", "Transparence totale", "Accessible partout, sur mobile"],
-      url: "https://money.ifiaas.com"
-    },
-    {
-      icon: "💬", domain: "chat.ifiaas.com", name: "ifiChat",
-      badge: "🟢 En ligne", tagline: "Chat Live intégré à Telegram",
-      color: "#7ecfff",
-      desc: "ifiChat est une interface de chat en temps réel connectée nativement à Telegram. Communiquez avec votre audience, gérez votre support client et animez votre communauté depuis une interface fluide et unifiée.",
-      highlights: ["Chat live en temps réel", "Intégration Telegram native", "Support client intégré", "Communauté connectée", "Accessible sur tous appareils"],
-      url: "https://chat.ifiaas.com"
-    }
-  ];
+function CTA(){return(<section style={{margin:"0 var(--px) clamp(3rem,6vw,5rem)",borderRadius:"var(--r-xl)",background:"linear-gradient(135deg, var(--ink), var(--blue-deep) 60%, var(--blue))",padding:"clamp(4rem,8vw,7rem) clamp(2rem,5vw,4rem)",textAlign:"center",position:"relative",overflow:"hidden"}}><div style={{position:"absolute",top:-100,right:-100,width:400,height:400,borderRadius:"50%",background:"rgba(91,141,239,0.1)",animation:"float1 20s ease-in-out infinite",pointerEvents:"none"}}/><div style={{position:"absolute",bottom:-80,left:-80,width:300,height:300,borderRadius:"50%",background:"rgba(0,212,170,0.06)",animation:"float2 16s ease-in-out infinite",pointerEvents:"none"}}/><div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}><span style={{fontFamily:"var(--font-h)",fontSize:"clamp(8rem,22vw,20rem)",fontWeight:800,color:"rgba(255,255,255,0.02)",lineHeight:1}}>IFIAAS</span></div><div style={{position:"relative",zIndex:2}}><div style={{fontFamily:"var(--font-m)",fontSize:".6rem",letterSpacing:".3em",textTransform:"uppercase",color:"rgba(255,255,255,0.4)",marginBottom:20}}>Collaboration · Partenariat</div><h2 style={{fontFamily:"var(--font-h)",fontSize:"clamp(2.2rem,4.5vw,4.2rem)",fontWeight:800,lineHeight:1.08,color:"#fff",letterSpacing:"-.03em",marginBottom:16}}>Prêt à construire<br/><span style={{color:"var(--blue-sky)"}}>ensemble ?</span></h2><p style={{color:"rgba(255,255,255,0.5)",fontSize:"clamp(.9rem,1.1vw,1rem)",marginBottom:36,lineHeight:1.7}}>Un projet, une idée, un besoin ? Armel est disponible sur WhatsApp.</p><div className="cta-btns" style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}><a href="https://wa.me/22967455462" target="_blank" rel="noreferrer" style={{background:"#fff",color:"var(--blue-deep)",padding:"1rem 2.5rem",fontFamily:"var(--font-b)",fontSize:".85rem",fontWeight:700,borderRadius:50,boxShadow:"0 8px 32px rgba(0,0,0,0.2)",transition:"all .3s",display:"inline-flex",alignItems:"center",gap:8}} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-4px)"} onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>Contacter Armel →</a><a href="https://youtube.com/@ifiaas" target="_blank" rel="noreferrer" style={{background:"transparent",color:"#fff",padding:"1rem 2.5rem",fontFamily:"var(--font-b)",fontSize:".85rem",fontWeight:600,borderRadius:50,border:"1.5px solid rgba(255,255,255,0.2)",transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.5)";e.currentTarget.style.transform="translateY(-4px)"}} onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.2)";e.currentTarget.style.transform="translateY(0)"}}>Notre YouTube</a></div></div></section>)}
 
-  const [active, setActive] = useState(0);
-  const p = platforms[active];
+function Footer(){return(<footer style={{background:"var(--ink)",padding:"clamp(3.5rem,7vw,5rem) var(--px) clamp(1.5rem,3vw,2rem)",borderRadius:"var(--r-xl) var(--r-xl) 0 0"}}><div className="footer-inner" style={{display:"grid",gridTemplateColumns:"2.2fr 1fr 1fr",gap:"clamp(2rem,5vw,5rem)",marginBottom:"clamp(2.5rem,5vw,4rem)"}}><div><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}><div style={{width:32,height:32,borderRadius:9,background:"var(--blue)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontFamily:"var(--font-h)",fontSize:".72rem",fontWeight:800}}>IF</span></div><span style={{fontFamily:"var(--font-h)",fontSize:"1rem",fontWeight:800,color:"var(--blue-sky)"}}>IFIAAS</span></div><p style={{fontSize:".88rem",color:"rgba(255,255,255,0.35)",lineHeight:1.8,maxWidth:300,marginBottom:16}}>Informatique · Finance · Agriculture.<br/>Innovation numérique depuis Zinvié, Bénin.</p><div style={{fontFamily:"var(--font-m)",fontSize:".6rem",color:"rgba(255,255,255,0.18)"}}>contact@ifiaas.com</div></div><div><div style={{fontFamily:"var(--font-m)",fontSize:".58rem",letterSpacing:".22em",textTransform:"uppercase",color:"rgba(255,255,255,0.22)",marginBottom:20,fontWeight:600}}>Plateformes</div>{[["📶 GigaZone WiFi","https://z.ifiaas.com"],["🏦 ifiMoney","https://money.ifiaas.com"],["💬 ifiChat","https://chat.ifiaas.com"]].map(([l,u])=><a key={l} href={u} target="_blank" rel="noreferrer" style={{display:"block",fontSize:".85rem",color:"rgba(255,255,255,0.4)",marginBottom:14,transition:"color .3s"}} onMouseEnter={e=>e.currentTarget.style.color="var(--blue-sky)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,0.4)"}>{l}</a>)}</div><div><div style={{fontFamily:"var(--font-m)",fontSize:".58rem",letterSpacing:".22em",textTransform:"uppercase",color:"rgba(255,255,255,0.22)",marginBottom:20,fontWeight:600}}>Contact</div>{[["📱 WhatsApp","https://wa.me/22967455462"],["▶ YouTube","https://youtube.com/@ifiaas"],["✉️ Email","mailto:contact@ifiaas.com"]].map(([l,u])=><a key={l} href={u} target="_blank" rel="noreferrer" style={{display:"block",fontSize:".82rem",color:"rgba(255,255,255,0.4)",marginBottom:14,transition:"color .3s"}} onMouseEnter={e=>e.currentTarget.style.color="var(--blue-sky)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,0.4)"}>{l}</a>)}<div style={{fontSize:".82rem",color:"rgba(255,255,255,0.4)",marginTop:4}}>📍 Zinvié, Bénin</div></div></div><div style={{paddingTop:24,borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:16}}><span style={{fontFamily:"var(--font-m)",fontSize:".6rem",color:"rgba(255,255,255,0.15)"}}>© 2026 IFIAAS · Armel SANGAN</span><span style={{fontFamily:"var(--font-m)",fontSize:".6rem",color:"rgba(255,255,255,0.15)"}}>ifiaas.com · Bénin 🇧🇯</span></div></footer>)}
 
-  return (
-    <section id="plateformes" style={{ padding: `var(--section-py) var(--px)`, background: "var(--surface)", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: -300, right: -300, width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(ellipse,rgba(13,110,63,.1) 0%,transparent 70%)", pointerEvents: "none" }} />
-
-      <div className="rv" style={{ marginBottom: "clamp(2.5rem,5vw,4rem)" }}>
-        <Tag label="Plateformes" />
-        <SectionTitle style={{ marginBottom: "1rem" }}>Déjà <em style={{ fontStyle: "italic", color: "var(--gold2)" }}>en ligne</em></SectionTitle>
-        <p style={{ color: "var(--muted)", fontSize: "clamp(.85rem,1.1vw,.95rem)", lineHeight: 1.78, maxWidth: 520 }}>
-          Trois produits opérationnels — WiFi, épargne collective et communication. Sélectionnez une plateforme pour en savoir plus.
-        </p>
-      </div>
-
-      {/* Tabs */}
-      <div className="rv plat-tabs" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1px", background: "var(--border)", marginBottom: "1px" }}>
-        {platforms.map((pl, i) => (
-          <button key={i} onClick={() => setActive(i)} className="ptab"
-            style={{ padding: "clamp(.9rem,2vw,1.4rem) 1rem", background: active === i ? "rgba(0,245,160,.05)" : "var(--surface2)", borderBottom: active === i ? `2px solid ${pl.color}` : "2px solid transparent", color: active === i ? pl.color : "var(--muted)", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.6rem,.8vw,.72rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center", gap: ".5rem" }}>
-            <span style={{ fontSize: isMobile ? "1rem" : "1.1rem" }}>{pl.icon}</span>
-            <span>{isMobile ? pl.name.split(" ")[0] : pl.name}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Detail */}
-      <div className="rv plat-detail" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1px", background: "var(--border)" }}>
-        {/* Left: description */}
-        <div style={{ background: "var(--surface)", padding: "clamp(2rem,4vw,3.5rem)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "clamp(2rem,4vw,3rem)" }}>{p.icon}</span>
-            <div>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.58rem,.7vw,.65rem)", color: p.color, letterSpacing: ".15em", textTransform: "uppercase", marginBottom: ".3rem" }}>{p.badge} · {p.domain}</div>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.5rem,2.5vw,2rem)", fontWeight: 600 }}>{p.name}</div>
-            </div>
-          </div>
-          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1rem,1.5vw,1.2rem)", fontStyle: "italic", color: p.color, marginBottom: "1.2rem" }}>{p.tagline}</div>
-          <p style={{ fontSize: "clamp(.82rem,1vw,.9rem)", color: "var(--muted)", lineHeight: 1.88, marginBottom: "2rem" }}>{p.desc}</p>
-          <a href={p.url} target="_blank" rel="noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: ".6rem", background: p.color, color: "#000", padding: ".8rem 1.8rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.68rem,.8vw,.75rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", clipPath: "polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)", transition: "filter .3s, transform .2s" }}
-            onMouseEnter={e => { e.currentTarget.style.filter = "brightness(1.15)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-            onMouseLeave={e => { e.currentTarget.style.filter = "brightness(1)"; e.currentTarget.style.transform = "translateY(0)"; }}>
-            Visiter ↗
-          </a>
-        </div>
-
-        {/* Right: highlights + forfaits */}
-        <div style={{ background: "var(--surface2)", padding: "clamp(2rem,4vw,3.5rem)" }}>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--muted)", marginBottom: "1.2rem" }}>Points clés</div>
-          {p.highlights.map((h, i) => (
-            <div key={i} className="hi" style={{ padding: ".8rem 0", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "1rem", borderRadius: 4, paddingLeft: 0 }}>
-              <span style={{ color: p.color, minWidth: 18, fontSize: ".95rem" }}>✓</span>
-              <span style={{ fontSize: "clamp(.78rem,1vw,.87rem)" }}>{h}</span>
-            </div>
-          ))}
-          {p.extra && (
-            <div style={{ marginTop: "1.8rem" }}>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--muted)", marginBottom: "1rem" }}>{p.extra.title}</div>
-              <div className="price-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: ".5rem" }}>
-                {p.extra.items.map(([d, v]) => (
-                  <div key={d} style={{ background: "rgba(0,245,160,.05)", border: "1px solid rgba(0,245,160,.1)", padding: ".65rem .9rem", borderRadius: 4 }}>
-                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".58rem", color: "var(--muted)", marginBottom: ".2rem" }}>{d}</div>
-                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".9rem", color: "var(--accent)", fontWeight: 700 }}>{v}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   DOMAINS
-═══════════════════════════════════════════ */
-function Domains() {
-  const domains = [
-    { num: "01", title: "💻 Informatique", desc: "Développement fullstack, architecture système, applications web & mobile. Des solutions robustes conçues pour répondre aux besoins concrets des entreprises africaines et internationales." },
-    { num: "02", title: "📊 Finance & Épargne", desc: "Finance digitale et tontine numérique. ifiMoney modernise l'épargne collective africaine, pendant qu'une marketplace crypto se prépare en coulisses." },
-    { num: "03", title: "🌱 Agriculture Tech", desc: "Digitalisation des pratiques agricoles, outils de monitoring et de gestion. La technologie au service de la productivité agricole africaine." },
-  ];
-
-  return (
-    <section id="domaines" style={{ padding: `var(--section-py) var(--px)`, background: "var(--bg)" }}>
-      <div className="domains-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(2rem,6vw,6rem)", alignItems: "center" }}>
-        <div>
-          <div className="rv"><Tag label="Domaines d'expertise" /></div>
-          <SectionTitle className="rv" style={{ marginBottom: "clamp(2rem,4vw,3rem)" }}>Trois piliers,<br /><em style={{ fontStyle: "italic", color: "var(--gold2)" }}>une vision</em></SectionTitle>
-          {domains.map((d, i) => (
-            <div key={d.num} className={`di rv d${i + 1}`} style={{ padding: "1.8rem 0", borderBottom: "1px solid var(--border)", borderLeft: "2px solid transparent", paddingLeft: 0, display: "flex", gap: "1.2rem", marginLeft: -2 }}>
-              <div>
-                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".65rem", color: "var(--accent)", display: "block", marginBottom: ".5rem" }}>{d.num}</span>
-                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.25rem,2vw,1.5rem)", fontWeight: 600, marginBottom: ".5rem" }}>{d.title}</div>
-                <div style={{ fontSize: "clamp(.8rem,1vw,.87rem)", color: "var(--muted)", lineHeight: 1.78 }}>{d.desc}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Visual — hidden on mobile */}
-        <div className="domain-vis rv" style={{ position: "relative", height: "min(500px,45vw)" }}>
-          <div style={{ position: "absolute", inset: 0, border: "1px solid var(--border)", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 40%,rgba(13,110,63,.18) 0%,transparent 70%)" }} />
-            <div style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(5rem,10vw,10rem)", color: "rgba(0,245,160,.07)", lineHeight: 1, userSelect: "none" }}>IFI</div>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".28em", textTransform: "uppercase", color: "rgba(240,237,230,.2)", marginTop: "1rem" }}>Info · Finance · Agriculture</div>
-            </div>
-            {[[160, 20], [260, 35], [360, 50]].map(([s, d]) => (
-              <div key={s} style={{ position: "absolute", top: "50%", left: "50%", width: s, height: s, borderRadius: "50%", border: "1px solid rgba(0,245,160,.05)", animation: `spinC ${d}s linear infinite`, marginTop: -s / 2, marginLeft: -s / 2 }} />
-            ))}
-            <span style={{ position: "absolute", fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".18em", color: "rgba(240,237,230,.18)", top: "1.5rem", right: "1.5rem" }}>IFIAAS · 2026</span>
-            <span style={{ position: "absolute", fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".18em", color: "rgba(240,237,230,.18)", bottom: "1.5rem", left: "1.5rem" }}>Zinvié · Bénin</span>
-          </div>
-          <Corner pos="tr" />
-          <Corner pos="bl" color="var(--gold)" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   PROJECTS
-═══════════════════════════════════════════ */
-function Projects() {
-  const projects = [
-    { badge: "En développement", bc: "var(--accent)", bl: "var(--accent)", bg: "rgba(0,245,160,.03)", featured: true, name: "Marketplace Crypto", desc: "Une marketplace dédiée à la monnaie virtuelle. Achat, vente et échange d'actifs numériques dans un environnement sécurisé, conçue pour l'adoption de masse sur le marché africain et international.", tags: ["Blockchain", "Crypto", "DeFi", "Web3"] },
-    { badge: "Bientôt", bc: "var(--gold2)", bl: "var(--gold)", bg: "rgba(212,168,67,.03)", name: "WiFi Zone Manager Pro", desc: "L'évolution de GigaZone : analytics temps réel, facturation automatisée, gestion multi-sites. Pour scaler votre business WiFi.", tags: ["IoT", "SaaS", "Analytics"] },
-    { badge: "À venir", bc: "var(--muted)", bl: "transparent", bg: "var(--surface)", name: "Et bien plus…", desc: "L'écosystème IFIAAS est en expansion permanente. Nouveaux outils, nouvelles opportunités.", tags: ["Innovation", "???"] },
-  ];
-
-  return (
-    <section id="projets" style={{ padding: `var(--section-py) var(--px)`, background: "var(--surface)" }}>
-      <div className="rv" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "clamp(2.5rem,5vw,4.5rem)", flexWrap: "wrap", gap: "1.5rem" }}>
-        <div><Tag label="Roadmap" /><SectionTitle>Projets à <em style={{ fontStyle: "italic", color: "var(--gold2)" }}>venir</em></SectionTitle></div>
-        <p style={{ color: "var(--muted)", fontSize: ".85rem", maxWidth: 240, lineHeight: 1.7 }}>L'écosystème IFIAAS grandit sans cesse.</p>
-      </div>
-
-      <div className="rv proj-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "1px", background: "var(--border)" }}>
-        {/* Featured */}
-        <div className="pj" style={{ background: projects[0].bg, padding: "clamp(2rem,4vw,3rem)", borderLeft: `2px solid ${projects[0].bl}` }}>
-          <div style={{ display: "inline-block", fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".15em", textTransform: "uppercase", padding: ".3rem .9rem", border: `1px solid ${projects[0].bc}`, color: projects[0].bc, marginBottom: "1.3rem" }}>{projects[0].badge}</div>
-          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.5rem,2.5vw,2rem)", fontWeight: 600, marginBottom: ".9rem" }}>{projects[0].name}</div>
-          <p style={{ fontSize: "clamp(.82rem,1vw,.88rem)", color: "var(--muted)", lineHeight: 1.78, marginBottom: "1.8rem" }}>{projects[0].desc}</p>
-          <div style={{ display: "flex", gap: ".4rem", flexWrap: "wrap" }}>{projects[0].tags.map(t => <span key={t} style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", padding: ".25rem .7rem", background: "rgba(240,237,230,.04)", color: "var(--muted)" }}>{t}</span>)}</div>
-        </div>
-
-        {/* Others */}
-        <div className="proj-inner" style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1px", background: "var(--border)" }}>
-          {projects.slice(1).map((p) => (
-            <div key={p.name} className="pj" style={{ background: p.bg, padding: "clamp(1.5rem,3vw,2.5rem)", borderLeft: `2px solid ${p.bl}` }}>
-              <div style={{ display: "inline-block", fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".15em", textTransform: "uppercase", padding: ".3rem .9rem", border: `1px solid ${p.bc}`, color: p.bc, marginBottom: "1rem" }}>{p.badge}</div>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(1.3rem,2vw,1.6rem)", fontWeight: 600, marginBottom: ".7rem" }}>{p.name}</div>
-              <p style={{ fontSize: "clamp(.78rem,.95vw,.85rem)", color: "var(--muted)", lineHeight: 1.75, marginBottom: "1.2rem" }}>{p.desc}</p>
-              <div style={{ display: "flex", gap: ".4rem", flexWrap: "wrap" }}>{p.tags.map(t => <span key={t} style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".58rem", padding: ".22rem .65rem", background: "rgba(240,237,230,.04)", color: "var(--muted)" }}>{t}</span>)}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   FOUNDER
-═══════════════════════════════════════════ */
-function Founder() {
-  const skills = ["Développement Fullstack", "Conception Graphique", "Finance Digitale", "Agriculture Tech", "UI/UX Design", "Entrepreneuriat", "WiFi & Réseaux", "Architecture Système"];
-  const contacts = [
-    ["📱", "WhatsApp", "+229 67 45 54 62", "https://wa.me/22967455462"],
-    ["📺", "YouTube", "@ifiaas", "https://youtube.com/@ifiaas"],
-    ["✉️", "Email", "contact@ifiaas.com", "mailto:contact@ifiaas.com"],
-    ["📍", "Adresse", "Zinvié, Bénin", null],
-  ];
-
-  return (
-    <section id="fondateur" style={{ padding: `var(--section-py) var(--px)`, background: "var(--bg)", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", bottom: -200, right: -200, width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(ellipse,rgba(212,168,67,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
-
-      <div className="founder-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "clamp(2rem,6vw,6rem)", alignItems: "center" }}>
-        {/* Avatar */}
-        <div className="rv" style={{ position: "relative" }}>
-          <div style={{ width: "100%", aspectRatio: "3/4", background: "var(--surface2)", border: "1px solid var(--border)", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 80% at 40% 60%,rgba(13,110,63,.18) 0%,transparent 70%)" }} />
-            <div style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(4rem,10vw,7rem)", color: "rgba(0,245,160,.12)", lineHeight: 1 }}>AS</div>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(240,237,230,.2)", marginTop: "1rem" }}>Armel Sangan</div>
-            </div>
-            <div style={{ position: "absolute", left: 0, right: 0, height: 1, background: "linear-gradient(90deg,transparent,rgba(0,245,160,.2),transparent)", animation: "scanline 4s linear infinite" }} />
-          </div>
-          <div style={{ position: "absolute", bottom: "2rem", left: "50%", transform: "translateX(-50%)", background: "rgba(6,8,13,.93)", backdropFilter: "blur(20px)", border: "1px solid var(--border)", padding: ".75rem 1.4rem", whiteSpace: "nowrap", textAlign: "center" }}>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", color: "var(--accent)", letterSpacing: ".15em", textTransform: "uppercase" }}>Promoteur & CEO</div>
-            <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "1.05rem", fontWeight: 600, marginTop: ".2rem" }}>IFIAAS</div>
-          </div>
-          <Corner pos="tr" size={48} />
-          <Corner pos="bl" color="var(--gold)" size={48} />
-        </div>
-
-        {/* Content */}
-        <div>
-          <div className="rv"><Tag label="Fondateur" /></div>
-          <h2 className="rv" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(2.2rem,4vw,4rem)", fontWeight: 600, lineHeight: 1.05, marginBottom: ".5rem" }}>
-            Armel<br /><em style={{ fontStyle: "italic", color: "var(--gold2)" }}>SANGAN</em>
-          </h2>
-          <div className="rv" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.62rem,.8vw,.72rem)", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent)", marginBottom: "1.8rem" }}>
-            Développeur · Designer · Entrepreneur
-          </div>
-          <p className="rv" style={{ fontSize: "clamp(.85rem,1.1vw,.95rem)", color: "var(--muted)", lineHeight: 1.88, marginBottom: "2rem", maxWidth: 500 }}>
-            Armel SANGAN est le promoteur et fondateur d'IFIAAS. Développeur fullstack et designer graphique passionné, il a conçu GigaZone WiFi Pro, ifiMoney et ifiChat — trois produits déjà actifs au Bénin. Sa mission : bâtir l'infrastructure numérique africaine, un outil concret à la fois.
-          </p>
-
-          <div className="rv" style={{ display: "flex", flexWrap: "wrap", gap: ".45rem", marginBottom: "2rem" }}>
-            {skills.map(s => <span key={s} className="sk" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.58rem,.7vw,.65rem)", letterSpacing: ".07em", textTransform: "uppercase", padding: ".38rem .9rem", border: "1px solid var(--border)", color: "var(--muted)" }}>{s}</span>)}
-          </div>
-
-          {/* Contacts card */}
-          <div className="rv" style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "clamp(1rem,2.5vw,1.5rem) clamp(1.2rem,3vw,2rem)", marginBottom: "1.8rem" }}>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".6rem", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--muted)", marginBottom: "1rem" }}>Coordonnées</div>
-            {contacts.map(([icon, label, val, href]) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: ".9rem", marginBottom: ".55rem", flexWrap: "wrap" }}>
-                <span style={{ fontSize: ".88rem", minWidth: 18 }}>{icon}</span>
-                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", color: "var(--muted)", minWidth: 65 }}>{label}</span>
-                {href
-                  ? <a href={href} target="_blank" rel="noreferrer" className="fl" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.7rem,.85vw,.78rem)", color: "var(--accent)" }}>{val}</a>
-                  : <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.7rem,.85vw,.78rem)", color: "var(--white)" }}>{val}</span>}
-              </div>
-            ))}
-          </div>
-
-          <div className="rv founder-contacts" style={{ display: "flex", gap: ".9rem", flexWrap: "wrap" }}>
-            {[["📱 WhatsApp", "https://wa.me/22967455462", "#25d366", "#000"], ["▶ YouTube", "https://youtube.com/@ifiaas", "#f00", "#fff"]].map(([label, url, bg, color]) => (
-              <a key={label} href={url} target="_blank" rel="noreferrer" className="ctab"
-                style={{ display: "flex", alignItems: "center", gap: ".6rem", background: bg, color, padding: ".85rem 1.6rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.65rem,.8vw,.72rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase" }}>
-                {label}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   CTA
-═══════════════════════════════════════════ */
-function CTA() {
-  return (
-    <div style={{ background: "var(--green)", padding: `clamp(4rem,8vw,7rem) var(--px)`, textAlign: "center", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", pointerEvents: "none" }}>
-        <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(8rem,20vw,22rem)", color: "rgba(255,255,255,.04)", whiteSpace: "nowrap", lineHeight: 1 }}>IFIAAS</span>
-      </div>
-      <div style={{ position: "relative", zIndex: 2 }}>
-        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.6rem,.75vw,.68rem)", letterSpacing: ".25em", textTransform: "uppercase", color: "rgba(240,237,230,.6)", marginBottom: "1.3rem" }}>Collaboration · Partenariat</div>
-        <SectionTitle style={{ marginBottom: "1.1rem" }}>Prêt à construire<br /><em style={{ fontStyle: "italic", color: "var(--gold2)" }}>ensemble ?</em></SectionTitle>
-        <p style={{ color: "rgba(240,237,230,.65)", fontSize: "clamp(.88rem,1.1vw,1rem)", marginBottom: "2.5rem" }}>Un projet, une idée, un besoin ? Armel est disponible sur WhatsApp.</p>
-        <div className="cta-btns" style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <a href="https://wa.me/22967455462" target="_blank" rel="noreferrer" className="ctab"
-            style={{ background: "#000", color: "var(--accent)", padding: ".95rem 2.3rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.75rem,.9vw,.82rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)" }}>
-            Contacter Armel
-          </a>
-          <a href="https://youtube.com/@ifiaas" target="_blank" rel="noreferrer" className="ctab"
-            style={{ background: "transparent", color: "var(--white)", padding: ".95rem 2.3rem", fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.75rem,.9vw,.82rem)", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", border: "1px solid rgba(240,237,230,.3)", clipPath: "polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)" }}>
-            Notre YouTube
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════════ */
-function Footer() {
-  return (
-    <footer style={{ background: "var(--bg)", padding: `clamp(3rem,6vw,4rem) var(--px) clamp(1.5rem,3vw,2rem)`, borderTop: "1px solid var(--border)" }}>
-      <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "clamp(1.5rem,4vw,4rem)", marginBottom: "clamp(2rem,4vw,4rem)" }}>
-        <div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(1rem,1.5vw,1.3rem)", fontWeight: 700, color: "var(--accent)", letterSpacing: ".2em", marginBottom: "1rem" }}>IFIAAS</div>
-          <p style={{ fontSize: "clamp(.78rem,1vw,.87rem)", color: "var(--muted)", lineHeight: 1.78, maxWidth: 300, marginBottom: "1.2rem" }}>Informatique · Finance · Agriculture. Innovation numérique depuis Zinvié, Bénin.</p>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", color: "rgba(240,237,230,.2)", letterSpacing: ".08em" }}>contact@ifiaas.com</div>
-        </div>
-        <div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", letterSpacing: ".2em", textTransform: "uppercase", color: "rgba(240,237,230,.22)", marginBottom: "1.3rem" }}>Plateformes</div>
-          {[["📶 GigaZone WiFi", "https://z.ifiaas.com"], ["🏦 ifiMoney", "https://money.ifiaas.com"], ["💬 ifiChat", "https://chat.ifiaas.com"]].map(([l, u]) => (
-            <a key={l} href={u} target="_blank" rel="noreferrer" className="fl" style={{ fontSize: "clamp(.78rem,1vw,.87rem)", color: "var(--muted)", marginBottom: ".75rem" }}>{l}</a>
-          ))}
-        </div>
-        <div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: ".62rem", letterSpacing: ".2em", textTransform: "uppercase", color: "rgba(240,237,230,.22)", marginBottom: "1.3rem" }}>Contact</div>
-          {[["📱 WhatsApp", "https://wa.me/22967455462"], ["▶ YouTube @ifiaas", "https://youtube.com/@ifiaas"], ["✉️ contact@ifiaas.com", "mailto:contact@ifiaas.com"]].map(([l, u]) => (
-            <a key={l} href={u} target="_blank" rel="noreferrer" className="fl" style={{ fontSize: "clamp(.75rem,.95vw,.85rem)", color: "var(--muted)", marginBottom: ".75rem" }}>{l}</a>
-          ))}
-          <div style={{ fontSize: "clamp(.75rem,.95vw,.85rem)", color: "var(--muted)", marginTop: ".3rem" }}>📍 Zinvié, Bénin</div>
-        </div>
-      </div>
-      <div style={{ paddingTop: "1.8rem", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-        <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.58rem,.72vw,.68rem)", color: "rgba(240,237,230,.18)" }}>© 2026 IFIAAS · Armel SANGAN</span>
-        <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "clamp(.58rem,.72vw,.68rem)", color: "rgba(240,237,230,.18)" }}>ifiaas.com · Bénin 🇧🇯</span>
-      </div>
-    </footer>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   APP
-═══════════════════════════════════════════ */
-export default function App() {
-  useReveal();
-  return (
-    <div>
-      <Cursor />
-      <Nav />
-      <Hero />
-      <Ticker />
-      <Platforms />
-      <Domains />
-      <Projects />
-      <Founder />
-      <CTA />
-      <Footer />
-    </div>
-  );
-}
+export default function App(){useReveal();return(<div style={{position:"relative"}}><Nav/><Hero/><Ticker/><Platforms/><Domains/><Projects/><Founder/><CTA/><Footer/></div>)}
